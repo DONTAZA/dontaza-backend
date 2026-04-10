@@ -1,0 +1,3 @@
+[submodule "dontaza-env"]
+	path = dontaza-env
+	url = https://github.com/DONTAZA/dontaza-env.git
