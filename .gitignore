@@ -35,3 +35,9 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Config (copied from submodule at build time) ###
+src/main/resources/application*.yml
+
+### H2 file DB ###
+data/
