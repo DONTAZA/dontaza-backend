@@ -1,3 +1,6 @@
 [submodule "dontaza-env"]
 	path = dontaza-env
 	url = https://github.com/DONTAZA/dontaza-env.git
+[submodule "dontaza-wiki"]
+	path = dontaza-wiki
+	url = https://github.com/DONTAZA/dontaza-wiki.git
