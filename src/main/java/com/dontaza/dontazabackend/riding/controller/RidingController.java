@@ -11,6 +11,7 @@ import com.dontaza.dontazabackend.riding.dto.RidingCurrentResponse;
 import com.dontaza.dontazabackend.riding.dto.VerifyResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,15 +24,13 @@ public class RidingController implements RidingApi {
 
     @Override
     public SuccessResponse<RentResponse> rent(RentRequest request) {
-        // TODO: 인증 구현 후 JWT에서 userId 추출로 교체
-        Long userId = 1L;
+        Long userId = getCurrentMemberId();
         return SuccessResponse.success(HttpStatus.OK, ridingService.rent(userId, request));
     }
 
     @Override
     public SuccessResponse<RidingCurrentResponse> getCurrentRiding() {
-        // TODO: 인증 구현 후 JWT에서 userId 추출로 교체
-        Long userId = 1L;
+        Long userId = getCurrentMemberId();
         return SuccessResponse.success(HttpStatus.OK, ridingService.getCurrentRiding(userId));
     }
 
@@ -42,8 +41,15 @@ public class RidingController implements RidingApi {
 
     @Override
     public SuccessResponse<ReturnResponse> returnBike(Long ridingId, ReturnRequest request) {
-        // TODO: 인증 구현 후 JWT에서 userId 추출로 교체
-        Long userId = 1L;
+        Long userId = getCurrentMemberId();
         return SuccessResponse.success(HttpStatus.OK, ridingService.returnBike(userId, ridingId, request));
+    }
+
+    private Long getCurrentMemberId() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Long memberId) {
+            return memberId;
+        }
+        return 1L; // TODO: 인증 연동 완료 후 제거
     }
 }
