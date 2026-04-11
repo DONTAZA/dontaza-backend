@@ -96,8 +96,9 @@ public class RidingService {
 
     @Transactional(readOnly = true)
     public RidingCurrentResponse getCurrentRiding(Long userId) {
-        Riding riding = findActiveRiding(userId);
-        return RidingCurrentResponse.from(riding);
+        return ridingRepository.findFirstByUserIdAndStatusInOrderByRentedAtDesc(userId, ACTIVE_STATUSES)
+                .map(RidingCurrentResponse::from)
+                .orElseGet(RidingCurrentResponse::empty);
     }
 
     private Riding findActiveRiding(Long userId) {
