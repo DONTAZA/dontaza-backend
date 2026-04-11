@@ -1,5 +1,6 @@
 package com.dontaza.dontazabackend.riding.domain;
 
+import com.dontaza.dontazabackend.global.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -8,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RidingBaselineStation {
+public class RidingBaselineStation extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
