@@ -28,34 +28,26 @@ public class Riding extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private RidingStatus status;
 
-    private String rentStationNo;
-    private String rentStationName;
-    private int baselineBikeCount;
     private LocalDateTime rentedAt;
 
-    private String returnStationNo;
-    private String returnStationName;
+    private String returnStationId;
     private LocalDateTime returnedAt;
 
     private int distanceMeters;
     private int durationSeconds;
     private int earnedPoints;
 
-    public static Riding rent(Long userId, String stationNo, String stationName, int bikeCount) {
+    public static Riding rent(Long userId) {
         Riding riding = new Riding();
         riding.userId = userId;
         riding.status = RidingStatus.WAITING_VERIFICATION;
-        riding.rentStationNo = stationNo;
-        riding.rentStationName = stationName;
-        riding.baselineBikeCount = bikeCount;
         riding.rentedAt = LocalDateTime.now();
         return riding;
     }
 
-    public void returnBike(String stationNo, String stationName, int distance) {
+    public void returnBike(String returnStationId, int distance) {
         validateReturnable();
-        this.returnStationNo = stationNo;
-        this.returnStationName = stationName;
+        this.returnStationId = returnStationId;
         this.returnedAt = LocalDateTime.now();
         this.durationSeconds = (int) Duration.between(rentedAt, returnedAt).getSeconds();
         this.distanceMeters = distance;
@@ -69,11 +61,6 @@ public class Riding extends BaseTimeEntity {
 
     public void cancelVerification() {
         this.status = RidingStatus.VERIFICATION_FAILED;
-    }
-
-    public boolean isRiding() {
-        return this.status == RidingStatus.WAITING_VERIFICATION
-                || this.status == RidingStatus.IN_PROGRESS;
     }
 
     private void validateReturnable() {
