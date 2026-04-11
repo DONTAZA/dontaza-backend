@@ -5,6 +5,7 @@ import com.dontaza.dontazabackend.member.domain.Member;
 public record MemberResponse(
         Long id,
         String nickname,
+        String profileImageUrl,
         int totalPoints
 ) {
 
@@ -12,6 +13,7 @@ public record MemberResponse(
         return new MemberResponse(
                 member.getId(),
                 member.getNickname(),
+                member.getProfileImageUrl(),
                 member.getTotalPoints()
         );
     }

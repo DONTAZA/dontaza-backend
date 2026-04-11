@@ -68,7 +68,8 @@ public class Riding extends BaseTimeEntity {
         if (this.status == RidingStatus.COMPLETED) {
             throw new RidingAlreadyEndedException();
         }
-        if (this.status == RidingStatus.VERIFICATION_FAILED) {
+        if (this.status == RidingStatus.WAITING_VERIFICATION
+                || this.status == RidingStatus.VERIFICATION_FAILED) {
             throw new RidingNotVerifiedException();
         }
         long elapsed = Duration.between(rentedAt, LocalDateTime.now()).getSeconds();
