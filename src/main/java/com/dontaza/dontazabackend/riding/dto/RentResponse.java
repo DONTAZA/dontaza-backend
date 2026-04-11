@@ -1,19 +1,23 @@
 package com.dontaza.dontazabackend.riding.dto;
 
 import com.dontaza.dontazabackend.riding.domain.Riding;
+import com.dontaza.dontazabackend.station.domain.Station;
+
+import java.util.List;
 
 public record RentResponse(
         Long ridingId,
-        String stationNo,
-        String stationName,
+        List<String> nearbyStationIds,
         String status
 ) {
 
-    public static RentResponse from(Riding riding) {
+    public static RentResponse of(Riding riding, List<Station> nearbyStations) {
+        List<String> stationIds = nearbyStations.stream()
+                .map(Station::getId)
+                .toList();
         return new RentResponse(
                 riding.getId(),
-                riding.getRentStationNo(),
-                riding.getRentStationName(),
+                stationIds,
                 riding.getStatus().name()
         );
     }
