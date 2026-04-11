@@ -3,7 +3,10 @@ package com.dontaza.dontazabackend.riding.application;
 import com.dontaza.dontazabackend.global.exception.BusinessViolationException.AlreadyRidingException;
 import com.dontaza.dontazabackend.global.exception.BusinessViolationException.DailyRidingLimitException;
 import com.dontaza.dontazabackend.global.exception.BusinessViolationException.TooFarFromStationException;
+import com.dontaza.dontazabackend.global.exception.ResourceException.MemberNotFoundException;
 import com.dontaza.dontazabackend.global.exception.ResourceException.RidingNotFoundException;
+import com.dontaza.dontazabackend.member.domain.Member;
+import com.dontaza.dontazabackend.member.domain.MemberRepository;
 import com.dontaza.dontazabackend.riding.domain.Riding;
 import com.dontaza.dontazabackend.riding.domain.RidingBaselineStation;
 import com.dontaza.dontazabackend.riding.domain.RidingBaselineStationRepository;
@@ -32,10 +35,11 @@ public class RidingService {
             List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.IN_PROGRESS);
 
     private static final List<RidingStatus> VERIFIABLE_STATUSES =
-            List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.VERIFICATION_FAILED);
+            List.of(RidingStatus.WAITING_VERIFICATION);
 
     private final RidingRepository ridingRepository;
     private final RidingBaselineStationRepository baselineStationRepository;
+    private final MemberRepository memberRepository;
     private final StationService stationService;
 
     @Transactional
@@ -80,6 +84,13 @@ public class RidingService {
 
         int points = riding.getStatus() == RidingStatus.IN_PROGRESS ? request.earnedPoints() : 0;
         riding.returnBike(returnStation.getId(), points);
+
+        if (points > 0) {
+            Member member = memberRepository.findById(userId)
+                    .orElseThrow(MemberNotFoundException::new);
+            member.addPoints(points);
+        }
+
         return ReturnResponse.from(riding);
     }
 
