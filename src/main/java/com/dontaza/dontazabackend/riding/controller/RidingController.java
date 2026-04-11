@@ -5,6 +5,8 @@ import com.dontaza.dontazabackend.riding.api.RidingApi;
 import com.dontaza.dontazabackend.riding.application.RidingService;
 import com.dontaza.dontazabackend.riding.dto.RentRequest;
 import com.dontaza.dontazabackend.riding.dto.RentResponse;
+import com.dontaza.dontazabackend.riding.dto.ReturnRequest;
+import com.dontaza.dontazabackend.riding.dto.ReturnResponse;
 import com.dontaza.dontazabackend.riding.dto.RidingCurrentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,5 +32,12 @@ public class RidingController implements RidingApi {
         // TODO: 인증 구현 후 JWT에서 userId 추출로 교체
         Long userId = 1L;
         return SuccessResponse.success(HttpStatus.OK, ridingService.getCurrentRiding(userId));
+    }
+
+    @Override
+    public SuccessResponse<ReturnResponse> returnBike(Long ridingId, ReturnRequest request) {
+        // TODO: 인증 구현 후 JWT에서 userId 추출로 교체
+        Long userId = 1L;
+        return SuccessResponse.success(HttpStatus.OK, ridingService.returnBike(userId, ridingId, request));
     }
 }

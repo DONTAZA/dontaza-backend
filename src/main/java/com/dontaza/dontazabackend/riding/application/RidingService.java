@@ -7,6 +7,8 @@ import com.dontaza.dontazabackend.riding.domain.RidingRepository;
 import com.dontaza.dontazabackend.riding.domain.RidingStatus;
 import com.dontaza.dontazabackend.riding.dto.RentRequest;
 import com.dontaza.dontazabackend.riding.dto.RentResponse;
+import com.dontaza.dontazabackend.riding.dto.ReturnRequest;
+import com.dontaza.dontazabackend.riding.dto.ReturnResponse;
 import com.dontaza.dontazabackend.riding.dto.RidingCurrentResponse;
 import com.dontaza.dontazabackend.station.application.StationService;
 import com.dontaza.dontazabackend.station.domain.Station;
@@ -36,6 +38,21 @@ public class RidingService {
 
         ridingRepository.save(riding);
         return RentResponse.from(riding);
+    }
+
+    @Transactional
+    public ReturnResponse returnBike(Long userId, Long ridingId, ReturnRequest request) {
+        Riding riding = ridingRepository.findById(ridingId)
+                .orElseThrow(RidingNotFoundException::new);
+        stationService.validateProximity(request.stationNo(), request.lat(), request.lng());
+
+        Station rentStation = stationService.findByStationNo(riding.getRentStationName().split("\\.")[0]);
+        Station returnStation = stationService.findByStationNo(request.stationNo());
+        int distance = rentStation.distanceMetersTo(
+                new com.dontaza.dontazabackend.station.domain.GeoPoint(returnStation.lat(), returnStation.lng()));
+
+        riding.returnBike(returnStation.id(), returnStation.name(), distance);
+        return ReturnResponse.from(riding);
     }
 
     @Transactional(readOnly = true)

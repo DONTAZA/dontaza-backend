@@ -35,4 +35,11 @@ public class BusinessViolationException extends CustomGlobalException {
             super(ErrorCode.RIDING_ALREADY_ENDED, ErrorCode.RIDING_ALREADY_ENDED.getMessage());
         }
     }
+
+    public static final class RidingTooShortException extends BusinessViolationException {
+
+        public RidingTooShortException() {
+            super(ErrorCode.RIDING_TOO_SHORT, ErrorCode.RIDING_TOO_SHORT.getMessage());
+        }
+    }
 }
