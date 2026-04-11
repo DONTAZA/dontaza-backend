@@ -49,9 +49,8 @@ public class PublicBikeApiClient {
                 stationRepository.findById(station.getId())
                         .ifPresentOrElse(
                                 existing -> existing.updateInfo(
-                                        station.getNumber(), station.getName(),
-                                        station.getLat(), station.getLng(),
-                                        station.getAvailableBikes()),
+                                        station.getName(), station.getLat(),
+                                        station.getLng(), station.getAvailableBikes()),
                                 () -> stationRepository.save(station)
                         );
             }
@@ -129,14 +128,9 @@ public class PublicBikeApiClient {
     }
 
     private Station toStation(Item item) {
-        String[] parts = item.rntstnNm().trim().split("\\. ", 2);
-        String number = parts[0].trim();
-        String name = parts.length > 1 ? parts[1].trim() : item.rntstnNm().trim();
-
         return new Station(
                 item.rntstnId(),
-                number,
-                name,
+                item.rntstnNm().trim(),
                 Double.parseDouble(item.lat()),
                 Double.parseDouble(item.lot()),
                 Integer.parseInt(item.bcyclTpkctNocs())

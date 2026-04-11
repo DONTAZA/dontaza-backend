@@ -16,9 +16,6 @@ public class Station extends BaseTimeEntity {
     @Id
     private String id;
 
-    @Column(nullable = false, unique = true)
-    private String number;
-
     @Column(nullable = false)
     private String name;
 
@@ -30,17 +27,15 @@ public class Station extends BaseTimeEntity {
 
     private int availableBikes;
 
-    public Station(String id, String number, String name, double lat, double lng, int availableBikes) {
+    public Station(String id, String name, double lat, double lng, int availableBikes) {
         this.id = id;
-        this.number = number;
         this.name = name;
         this.lat = lat;
         this.lng = lng;
         this.availableBikes = availableBikes;
     }
 
-    public void updateInfo(String number, String name, double lat, double lng, int availableBikes) {
-        this.number = number;
+    public void updateInfo(String name, double lat, double lng, int availableBikes) {
         this.name = name;
         this.lat = lat;
         this.lng = lng;
