@@ -8,24 +8,34 @@ import com.dontaza.dontazabackend.station.domain.StationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class StationService {
 
-    private static final int PROXIMITY_RADIUS_METERS = 100;
+    private static final int PROXIMITY_RADIUS_METERS = 50;
 
     private final StationRepository stationRepository;
 
-    public Station findByStationNo(String stationNo) {
-        return stationRepository.findByNumber(stationNo)
-                .orElseThrow(StationNotFoundException::new);
+    public List<Station> findNearbyStations(double lat, double lng) {
+        GeoPoint userLocation = new GeoPoint(lat, lng);
+        return stationRepository.findAll().stream()
+                .filter(s -> s.isWithinRadius(userLocation, PROXIMITY_RADIUS_METERS))
+                .toList();
     }
 
-    public void validateProximity(String stationNo, double lat, double lng) {
-        Station station = findByStationNo(stationNo);
+    public Station findNearestStation(double lat, double lng) {
         GeoPoint userLocation = new GeoPoint(lat, lng);
-        if (station.distanceMetersTo(userLocation) > PROXIMITY_RADIUS_METERS) {
-            throw new TooFarFromStationException();
-        }
+        return stationRepository.findAll().stream()
+                .filter(s -> s.isWithinRadius(userLocation, PROXIMITY_RADIUS_METERS))
+                .min(Comparator.comparingInt(s -> s.distanceMetersTo(userLocation)))
+                .orElseThrow(TooFarFromStationException::new);
+    }
+
+    public Station findById(String stationId) {
+        return stationRepository.findById(stationId)
+                .orElseThrow(StationNotFoundException::new);
     }
 }
