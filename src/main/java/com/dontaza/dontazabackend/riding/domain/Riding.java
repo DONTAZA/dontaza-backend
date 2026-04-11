@@ -34,6 +34,8 @@ public class Riding extends BaseTimeEntity {
     private String returnStationId;
     private LocalDateTime returnedAt;
 
+    private boolean verifyAvailable;
+
     private int distanceMeters;
     private int durationSeconds;
     private int earnedPoints;
@@ -43,6 +45,7 @@ public class Riding extends BaseTimeEntity {
         riding.userId = userId;
         riding.status = RidingStatus.WAITING_VERIFICATION;
         riding.rentedAt = LocalDateTime.now();
+        riding.verifyAvailable = true;
         return riding;
     }
 
@@ -57,10 +60,12 @@ public class Riding extends BaseTimeEntity {
     }
 
     public void verify() {
+        this.verifyAvailable = false;
         this.status = RidingStatus.IN_PROGRESS;
     }
 
     public void cancelVerification() {
+        this.verifyAvailable = false;
         this.status = RidingStatus.VERIFICATION_FAILED;
     }
 
