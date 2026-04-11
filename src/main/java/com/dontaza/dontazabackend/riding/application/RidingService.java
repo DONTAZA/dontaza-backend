@@ -30,7 +30,7 @@ import java.util.List;
 public class RidingService {
 
     private static final List<RidingStatus> ACTIVE_STATUSES =
-            List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.IN_PROGRESS);
+            List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.IN_PROGRESS, RidingStatus.VERIFICATION_FAILED);
 
     private static final List<RidingStatus> VERIFIABLE_STATUSES =
             List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.VERIFICATION_FAILED);
@@ -58,7 +58,7 @@ public class RidingService {
 
     @Transactional
     public VerifyResponse verify(Long userId) {
-        Riding riding = ridingRepository.findByUserIdAndStatusIn(userId, VERIFIABLE_STATUSES)
+        Riding riding = ridingRepository.findFirstByUserIdAndStatusInOrderByRentedAtDesc(userId, VERIFIABLE_STATUSES)
                 .orElseThrow(RidingNotFoundException::new);
 
         List<RidingBaselineStation> baselines = baselineStationRepository.findByRidingId(riding.getId());
@@ -93,7 +93,7 @@ public class RidingService {
     }
 
     private Riding findActiveRiding(Long userId) {
-        return ridingRepository.findByUserIdAndStatusIn(userId, ACTIVE_STATUSES)
+        return ridingRepository.findFirstByUserIdAndStatusInOrderByRentedAtDesc(userId, ACTIVE_STATUSES)
                 .orElseThrow(RidingNotFoundException::new);
     }
 

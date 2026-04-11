@@ -10,7 +10,7 @@ public interface RidingRepository extends JpaRepository<Riding, Long> {
 
     boolean existsByUserIdAndStatusIn(Long userId, Collection<RidingStatus> statuses);
 
-    Optional<Riding> findByUserIdAndStatusIn(Long userId, Collection<RidingStatus> statuses);
+    Optional<Riding> findFirstByUserIdAndStatusInOrderByRentedAtDesc(Long userId, Collection<RidingStatus> statuses);
 
     boolean existsByUserIdAndStatusAndRentedAtAfter(Long userId, RidingStatus status, LocalDateTime after);
 }
