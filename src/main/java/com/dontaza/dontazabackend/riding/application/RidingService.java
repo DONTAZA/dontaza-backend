@@ -1,0 +1,43 @@
+package com.dontaza.dontazabackend.riding.application;
+
+import com.dontaza.dontazabackend.global.exception.BusinessViolationException.AlreadyRidingException;
+import com.dontaza.dontazabackend.riding.domain.Riding;
+import com.dontaza.dontazabackend.riding.domain.RidingRepository;
+import com.dontaza.dontazabackend.riding.domain.RidingStatus;
+import com.dontaza.dontazabackend.riding.dto.RentRequest;
+import com.dontaza.dontazabackend.riding.dto.RentResponse;
+import com.dontaza.dontazabackend.station.application.StationService;
+import com.dontaza.dontazabackend.station.domain.Station;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class RidingService {
+
+    private final RidingRepository ridingRepository;
+    private final StationService stationService;
+
+    @Transactional
+    public RentResponse rent(Long userId, RentRequest request) {
+        validateNotAlreadyRiding(userId);
+        stationService.validateProximity(request.stationNo(), request.lat(), request.lng());
+
+        Station station = stationService.findByStationNo(request.stationNo());
+        Riding riding = Riding.rent(userId, station.id(), station.name(), station.availableBikes());
+
+        ridingRepository.save(riding);
+        return RentResponse.from(riding);
+    }
+
+    private void validateNotAlreadyRiding(Long userId) {
+        boolean alreadyRiding = ridingRepository.existsByUserIdAndStatusIn(
+                userId, List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.IN_PROGRESS));
+        if (alreadyRiding) {
+            throw new AlreadyRidingException();
+        }
+    }
+}
