@@ -1,62 +1,67 @@
 package com.dontaza.dontazabackend.station.infrastructure;
 
 import com.dontaza.dontazabackend.station.domain.Station;
+import com.dontaza.dontazabackend.station.domain.StationRepository;
 import com.dontaza.dontazabackend.station.infrastructure.dto.PublicBikeApiResponse;
 import com.dontaza.dontazabackend.station.infrastructure.dto.PublicBikeApiResponse.Item;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
 public class PublicBikeApiClient {
 
-    private static final String CACHE_KEY = "all";
     private static final int PAGE_SIZE = 1000;
 
     private final PublicBikeApiProperties properties;
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
-    private final LoadingCache<String, List<Station>> stationCache;
+    private final StationRepository stationRepository;
 
-    public PublicBikeApiClient(PublicBikeApiProperties properties, ObjectMapper objectMapper) {
+    public PublicBikeApiClient(PublicBikeApiProperties properties, ObjectMapper objectMapper,
+                               StationRepository stationRepository) {
         this.properties = properties;
-        this.httpClient = HttpClient.newHttpClient();
+        this.httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(2))
+                .build();
         this.objectMapper = objectMapper;
-        this.stationCache = Caffeine.newBuilder()
-                .refreshAfterWrite(5, TimeUnit.MINUTES)
-                .expireAfterWrite(10, TimeUnit.MINUTES)
-                .build(key -> loadAllStations());
+        this.stationRepository = stationRepository;
     }
 
-    @PostConstruct
-    void warmUp() {
+    @Scheduled(initialDelay = 0, fixedDelay = 300_000)
+    @Transactional
+    public void syncAllStations() {
         try {
-            stationCache.get(CACHE_KEY);
-            log.info("Station cache warmed up: {} stations", stationCache.get(CACHE_KEY).size());
+            List<Station> stations = loadAllStationsFromApi();
+            for (Station station : stations) {
+                stationRepository.findById(station.getId())
+                        .ifPresentOrElse(
+                                existing -> existing.updateInfo(
+                                        station.getNumber(), station.getName(),
+                                        station.getLat(), station.getLng(),
+                                        station.getAvailableBikes()),
+                                () -> stationRepository.save(station)
+                        );
+            }
+            log.info("Station sync completed: {} stations", stations.size());
         } catch (Exception e) {
-            log.warn("Station cache warm-up failed: {}", e.getMessage());
+            log.warn("Station sync failed: {}", e.getMessage());
         }
     }
 
-    public List<Station> fetchAllStations() {
-        List<Station> stations = stationCache.get(CACHE_KEY);
-        return stations != null ? stations : Collections.emptyList();
-    }
-
-    private List<Station> loadAllStations() {
+    private List<Station> loadAllStationsFromApi() {
         return properties.regionCodes().stream()
                 .flatMap(code -> fetchStationsByRegion(code).stream())
                 .toList();
@@ -85,6 +90,8 @@ public class PublicBikeApiClient {
         return result;
     }
 
+    private static final int MAX_RETRIES = 3;
+
     private PublicBikeApiResponse requestPage(String regionCode, int pageNo) throws Exception {
         String query = "serviceKey=" + properties.serviceKey()
                 + "&pageNo=" + pageNo
@@ -93,10 +100,23 @@ public class PublicBikeApiClient {
         URI uri = new URI("https", "apis.data.go.kr",
                 "/B551982/pbdo_v2/inf_101_00010002_v2", query, null);
 
-        HttpResponse<String> response = httpClient.send(
-                HttpRequest.newBuilder().uri(uri).GET().build(),
-                HttpResponse.BodyHandlers.ofString());
-        return objectMapper.readValue(response.body(), PublicBikeApiResponse.class);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(uri).timeout(Duration.ofSeconds(5)).GET().build();
+
+        Exception lastException = null;
+        for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
+            try {
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                return objectMapper.readValue(response.body(), PublicBikeApiResponse.class);
+            } catch (Exception e) {
+                lastException = e;
+                long backoff = (long) Math.pow(2, attempt) * 5000;
+                log.warn("API request failed (attempt {}/{}), retrying in {}ms: {}",
+                        attempt + 1, MAX_RETRIES, backoff, e.getMessage());
+                Thread.sleep(backoff);
+            }
+        }
+        throw lastException;
     }
 
     private List<Station> toStations(PublicBikeApiResponse response) {
@@ -109,9 +129,14 @@ public class PublicBikeApiClient {
     }
 
     private Station toStation(Item item) {
+        String[] parts = item.rntstnNm().trim().split("\\. ", 2);
+        String number = parts[0].trim();
+        String name = parts.length > 1 ? parts[1].trim() : item.rntstnNm().trim();
+
         return new Station(
                 item.rntstnId(),
-                item.rntstnNm(),
+                number,
+                name,
                 Double.parseDouble(item.lat()),
                 Double.parseDouble(item.lot()),
                 Integer.parseInt(item.bcyclTpkctNocs())
