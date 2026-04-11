@@ -22,10 +22,6 @@ public record Station(
         return distanceMetersTo(center) <= radiusMeters;
     }
 
-    public boolean isWithinBounds(MapBounds bounds) {
-        return bounds.contains(this.lat, this.lng);
-    }
-
     private double haversine(double value) {
         return Math.pow(Math.sin(value / 2), 2);
     }
