@@ -4,21 +4,19 @@ import com.dontaza.dontazabackend.global.exception.BusinessViolationException.To
 import com.dontaza.dontazabackend.global.exception.ResourceException.StationNotFoundException;
 import com.dontaza.dontazabackend.station.domain.GeoPoint;
 import com.dontaza.dontazabackend.station.domain.Station;
+import com.dontaza.dontazabackend.station.domain.StationRepository;
 import com.dontaza.dontazabackend.station.dto.StationVerifyRequest;
 import com.dontaza.dontazabackend.station.dto.StationVerifyResponse;
-import com.dontaza.dontazabackend.station.infrastructure.PublicBikeApiClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class StationService {
 
-    private static final int PROXIMITY_RADIUS_METERS = 50;
+    private static final int PROXIMITY_RADIUS_METERS = 100;
 
-    private final PublicBikeApiClient publicBikeApiClient;
+    private final StationRepository stationRepository;
 
     public StationVerifyResponse verifyProximity(StationVerifyRequest request) {
         Station station = findByStationNo(request.stationNo());
@@ -27,20 +25,17 @@ public class StationService {
         boolean withinRange = distance <= PROXIMITY_RADIUS_METERS;
 
         return new StationVerifyResponse(
-                station.id(),
-                station.name(),
-                station.lat(),
-                station.lng(),
+                station.getId(),
+                station.getName(),
+                station.getLat(),
+                station.getLng(),
                 withinRange,
                 distance
         );
     }
 
     public Station findByStationNo(String stationNo) {
-        List<Station> stations = publicBikeApiClient.fetchAllStations();
-        return stations.stream()
-                .filter(station -> station.name().startsWith(stationNo + "."))
-                .findFirst()
+        return stationRepository.findByNumber(stationNo)
                 .orElseThrow(StationNotFoundException::new);
     }
 
