@@ -22,8 +22,8 @@ public enum ErrorCode {
     INVALID_INPUT_VALUE(BAD_REQUEST, "G04", "유효하지 않은 입력값입니다"),
 
     // Station Error
-    STATION_NOT_FOUND(NOT_FOUND, "ST01", "존재하지 않는 대여소 번호입니다"),
-    TOO_FAR_FROM_STATION(BAD_REQUEST, "ST02", "대여소에서 100m 초과 위치입니다"),
+    STATION_NOT_FOUND(NOT_FOUND, "ST01", "대여소를 찾을 수 없습니다"),
+    TOO_FAR_FROM_STATION(BAD_REQUEST, "ST02", "50m 이내에 대여소가 없습니다"),
 
     // Riding Error
     ALREADY_RIDING(BAD_REQUEST, "R01", "이미 진행 중인 라이딩이 존재합니다"),
