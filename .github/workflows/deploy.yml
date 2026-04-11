@@ -61,6 +61,8 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
+            mkdir -p ~/deploy
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/dontaza-backend:latest
             cd ~/deploy
