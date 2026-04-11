@@ -1,11 +1,13 @@
 package com.dontaza.dontazabackend.riding.application;
 
 import com.dontaza.dontazabackend.global.exception.BusinessViolationException.AlreadyRidingException;
+import com.dontaza.dontazabackend.global.exception.ResourceException.RidingNotFoundException;
 import com.dontaza.dontazabackend.riding.domain.Riding;
 import com.dontaza.dontazabackend.riding.domain.RidingRepository;
 import com.dontaza.dontazabackend.riding.domain.RidingStatus;
 import com.dontaza.dontazabackend.riding.dto.RentRequest;
 import com.dontaza.dontazabackend.riding.dto.RentResponse;
+import com.dontaza.dontazabackend.riding.dto.RidingCurrentResponse;
 import com.dontaza.dontazabackend.station.application.StationService;
 import com.dontaza.dontazabackend.station.domain.Station;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RidingService {
+
+    private static final List<RidingStatus> ACTIVE_STATUSES =
+            List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.IN_PROGRESS);
 
     private final RidingRepository ridingRepository;
     private final StationService stationService;
@@ -33,10 +38,15 @@ public class RidingService {
         return RentResponse.from(riding);
     }
 
+    @Transactional(readOnly = true)
+    public RidingCurrentResponse getCurrentRiding(Long userId) {
+        Riding riding = ridingRepository.findByUserIdAndStatusIn(userId, ACTIVE_STATUSES)
+                .orElseThrow(RidingNotFoundException::new);
+        return RidingCurrentResponse.from(riding);
+    }
+
     private void validateNotAlreadyRiding(Long userId) {
-        boolean alreadyRiding = ridingRepository.existsByUserIdAndStatusIn(
-                userId, List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.IN_PROGRESS));
-        if (alreadyRiding) {
+        if (ridingRepository.existsByUserIdAndStatusIn(userId, ACTIVE_STATUSES)) {
             throw new AlreadyRidingException();
         }
     }
