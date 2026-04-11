@@ -1,8 +1,8 @@
 package com.dontaza.dontazabackend.auth.dto;
 
+import com.dontaza.dontazabackend.member.domain.Member;
+
 public record LoginResponse(
-        String accessToken,
-        String refreshToken,
         boolean isNewUser,
         MemberInfo user
 ) {
@@ -12,5 +12,12 @@ public record LoginResponse(
             String nickname,
             String profileImageUrl
     ) {
+    }
+
+    public static LoginResponse from(boolean isNewUser, Member member) {
+        return new LoginResponse(
+                isNewUser,
+                new MemberInfo(member.getId(), member.getName(), member.getProfileImageUrl())
+        );
     }
 }

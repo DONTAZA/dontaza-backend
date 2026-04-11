@@ -8,6 +8,13 @@ public class ResourceException extends CustomGlobalException {
         super(errorCode, message);
     }
 
+    public static final class MemberNotFoundException extends ResourceException {
+
+        public MemberNotFoundException() {
+            super(ErrorCode.MEMBER_NOT_FOUND, ErrorCode.MEMBER_NOT_FOUND.getMessage());
+        }
+    }
+
     public static final class StationNotFoundException extends ResourceException {
 
         public StationNotFoundException() {

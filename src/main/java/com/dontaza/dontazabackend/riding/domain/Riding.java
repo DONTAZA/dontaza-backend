@@ -2,6 +2,7 @@ package com.dontaza.dontazabackend.riding.domain;
 
 import com.dontaza.dontazabackend.global.domain.BaseTimeEntity;
 import com.dontaza.dontazabackend.global.exception.BusinessViolationException.RidingAlreadyEndedException;
+import com.dontaza.dontazabackend.global.exception.BusinessViolationException.RidingNotVerifiedException;
 import com.dontaza.dontazabackend.global.exception.BusinessViolationException.RidingTooShortException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -64,8 +65,11 @@ public class Riding extends BaseTimeEntity {
     }
 
     private void validateReturnable() {
-        if (this.status == RidingStatus.COMPLETED || this.status == RidingStatus.VERIFICATION_FAILED) {
+        if (this.status == RidingStatus.COMPLETED) {
             throw new RidingAlreadyEndedException();
+        }
+        if (this.status == RidingStatus.VERIFICATION_FAILED) {
+            throw new RidingNotVerifiedException();
         }
         long elapsed = Duration.between(rentedAt, LocalDateTime.now()).getSeconds();
         if (elapsed < MINIMUM_RIDING_SECONDS) {

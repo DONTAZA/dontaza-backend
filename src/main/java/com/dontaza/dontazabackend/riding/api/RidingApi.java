@@ -8,7 +8,6 @@ import com.dontaza.dontazabackend.riding.dto.ReturnResponse;
 import com.dontaza.dontazabackend.riding.dto.RidingCurrentResponse;
 import com.dontaza.dontazabackend.riding.dto.VerifyResponse;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -20,9 +19,9 @@ public interface RidingApi {
     @GetMapping("/current")
     SuccessResponse<RidingCurrentResponse> getCurrentRiding();
 
-    @GetMapping("/{ridingId}/verify")
-    SuccessResponse<VerifyResponse> verify(@PathVariable Long ridingId);
+    @GetMapping("/verify")
+    SuccessResponse<VerifyResponse> verify();
 
-    @PostMapping("/{ridingId}/return")
-    SuccessResponse<ReturnResponse> returnBike(@PathVariable Long ridingId, @RequestBody ReturnRequest request);
+    @PostMapping("/return")
+    SuccessResponse<ReturnResponse> returnBike(@RequestBody ReturnRequest request);
 }

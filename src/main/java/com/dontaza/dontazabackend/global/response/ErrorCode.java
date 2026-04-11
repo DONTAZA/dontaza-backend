@@ -23,6 +23,9 @@ public enum ErrorCode {
     INVALID_INPUT_VALUE(BAD_REQUEST, "G04", "유효하지 않은 입력값입니다"),
 
     // Station Error
+    MEMBER_NOT_FOUND(NOT_FOUND, "M01", "회원을 찾을 수 없습니다"),
+
+    // Station Error
     STATION_NOT_FOUND(NOT_FOUND, "ST01", "대여소를 찾을 수 없습니다"),
     TOO_FAR_FROM_STATION(BAD_REQUEST, "ST02", "50m 이내에 대여소가 없습니다"),
 
@@ -32,10 +35,12 @@ public enum ErrorCode {
     RIDING_NOT_VERIFIED(BAD_REQUEST, "R03", "대여 검증이 완료되지 않았습니다"),
     RIDING_ALREADY_ENDED(BAD_REQUEST, "R04", "이미 종료된 라이딩입니다"),
     RIDING_TOO_SHORT(BAD_REQUEST, "R05", "최소 5분 이상 라이딩해야 합니다"),
+    DAILY_RIDING_LIMIT(BAD_REQUEST, "R06", "하루에 한 번만 라이딩할 수 있습니다"),
 
     // Auth Error
     INVALID_REFRESH_TOKEN(UNAUTHORIZED, "A01", "유효하지 않은 리프레시 토큰입니다"),
     UNAUTHORIZED_ACCESS(UNAUTHORIZED, "A02", "인증이 필요합니다"),
+    KAKAO_AUTH_FAILED(UNAUTHORIZED, "A03", "카카오 인증에 실패했습니다. 인가 코드를 확인해주세요"),
 
     // Infrastructure Error
     EXTERNAL_API_FAIL(INTERNAL_SERVER_ERROR, "I01", "외부 API 처리 작업을 실패하였습니다");

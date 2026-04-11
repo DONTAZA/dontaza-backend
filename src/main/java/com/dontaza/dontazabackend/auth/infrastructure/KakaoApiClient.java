@@ -1,5 +1,6 @@
 package com.dontaza.dontazabackend.auth.infrastructure;
 
+import com.dontaza.dontazabackend.global.exception.BusinessViolationException.KakaoAuthFailedException;
 import com.dontaza.dontazabackend.auth.infrastructure.dto.KakaoTokenResponse;
 import com.dontaza.dontazabackend.auth.infrastructure.dto.KakaoUserResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -73,9 +74,14 @@ public class KakaoApiClient {
     private <T> T sendRequest(HttpRequest request, Class<T> responseType) {
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new KakaoAuthFailedException();
+            }
             return objectMapper.readValue(response.body(), responseType);
+        } catch (KakaoAuthFailedException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("카카오 API 호출 실패", e);
+            throw new KakaoAuthFailedException();
         }
     }
 }

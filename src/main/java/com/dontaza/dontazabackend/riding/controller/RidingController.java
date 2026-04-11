@@ -24,32 +24,25 @@ public class RidingController implements RidingApi {
 
     @Override
     public SuccessResponse<RentResponse> rent(RentRequest request) {
-        Long userId = getCurrentMemberId();
-        return SuccessResponse.success(HttpStatus.OK, ridingService.rent(userId, request));
+        return SuccessResponse.success(HttpStatus.OK, ridingService.rent(getCurrentMemberId(), request));
     }
 
     @Override
     public SuccessResponse<RidingCurrentResponse> getCurrentRiding() {
-        Long userId = getCurrentMemberId();
-        return SuccessResponse.success(HttpStatus.OK, ridingService.getCurrentRiding(userId));
+        return SuccessResponse.success(HttpStatus.OK, ridingService.getCurrentRiding(getCurrentMemberId()));
     }
 
     @Override
-    public SuccessResponse<VerifyResponse> verify(Long ridingId) {
-        return SuccessResponse.success(HttpStatus.OK, ridingService.verify(ridingId));
+    public SuccessResponse<VerifyResponse> verify() {
+        return SuccessResponse.success(HttpStatus.OK, ridingService.verify(getCurrentMemberId()));
     }
 
     @Override
-    public SuccessResponse<ReturnResponse> returnBike(Long ridingId, ReturnRequest request) {
-        Long userId = getCurrentMemberId();
-        return SuccessResponse.success(HttpStatus.OK, ridingService.returnBike(userId, ridingId, request));
+    public SuccessResponse<ReturnResponse> returnBike(ReturnRequest request) {
+        return SuccessResponse.success(HttpStatus.OK, ridingService.returnBike(getCurrentMemberId(), request));
     }
 
     private Long getCurrentMemberId() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof Long memberId) {
-            return memberId;
-        }
-        return 1L; // TODO: 인증 연동 완료 후 제거
+        return (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

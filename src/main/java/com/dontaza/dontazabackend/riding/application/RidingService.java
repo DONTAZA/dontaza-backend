@@ -1,6 +1,7 @@
 package com.dontaza.dontazabackend.riding.application;
 
 import com.dontaza.dontazabackend.global.exception.BusinessViolationException.AlreadyRidingException;
+import com.dontaza.dontazabackend.global.exception.BusinessViolationException.DailyRidingLimitException;
 import com.dontaza.dontazabackend.global.exception.BusinessViolationException.TooFarFromStationException;
 import com.dontaza.dontazabackend.global.exception.ResourceException.RidingNotFoundException;
 import com.dontaza.dontazabackend.riding.domain.Riding;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -30,6 +32,9 @@ public class RidingService {
     private static final List<RidingStatus> ACTIVE_STATUSES =
             List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.IN_PROGRESS);
 
+    private static final List<RidingStatus> VERIFIABLE_STATUSES =
+            List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.VERIFICATION_FAILED);
+
     private final RidingRepository ridingRepository;
     private final RidingBaselineStationRepository baselineStationRepository;
     private final StationService stationService;
@@ -37,6 +42,7 @@ public class RidingService {
     @Transactional
     public RentResponse rent(Long userId, RentRequest request) {
         validateNotAlreadyRiding(userId);
+        validateDailyLimit(userId);
 
         List<Station> nearbyStations = stationService.findNearbyStations(request.lat(), request.lng());
         if (nearbyStations.isEmpty()) {
@@ -51,10 +57,11 @@ public class RidingService {
     }
 
     @Transactional
-    public VerifyResponse verify(Long ridingId) {
-        Riding riding = findRidingById(ridingId);
+    public VerifyResponse verify(Long userId) {
+        Riding riding = ridingRepository.findByUserIdAndStatusIn(userId, VERIFIABLE_STATUSES)
+                .orElseThrow(RidingNotFoundException::new);
 
-        List<RidingBaselineStation> baselines = baselineStationRepository.findByRidingId(ridingId);
+        List<RidingBaselineStation> baselines = baselineStationRepository.findByRidingId(riding.getId());
         boolean bikeDecreased = baselines.stream()
                 .anyMatch(this::hasBikeCountDecreased);
 
@@ -68,11 +75,11 @@ public class RidingService {
     }
 
     @Transactional
-    public ReturnResponse returnBike(Long userId, Long ridingId, ReturnRequest request) {
-        Riding riding = findRidingById(ridingId);
+    public ReturnResponse returnBike(Long userId, ReturnRequest request) {
+        Riding riding = findActiveRiding(userId);
         Station returnStation = stationService.findNearestStation(request.lat(), request.lng());
 
-        List<RidingBaselineStation> baselines = baselineStationRepository.findByRidingId(ridingId);
+        List<RidingBaselineStation> baselines = baselineStationRepository.findByRidingId(riding.getId());
         int distance = calculateDistanceFromBaseline(baselines, returnStation);
 
         riding.returnBike(returnStation.getId(), distance);
@@ -81,14 +88,25 @@ public class RidingService {
 
     @Transactional(readOnly = true)
     public RidingCurrentResponse getCurrentRiding(Long userId) {
-        Riding riding = ridingRepository.findByUserIdAndStatusIn(userId, ACTIVE_STATUSES)
-                .orElseThrow(RidingNotFoundException::new);
+        Riding riding = findActiveRiding(userId);
         return RidingCurrentResponse.from(riding);
+    }
+
+    private Riding findActiveRiding(Long userId) {
+        return ridingRepository.findByUserIdAndStatusIn(userId, ACTIVE_STATUSES)
+                .orElseThrow(RidingNotFoundException::new);
     }
 
     private void validateNotAlreadyRiding(Long userId) {
         if (ridingRepository.existsByUserIdAndStatusIn(userId, ACTIVE_STATUSES)) {
             throw new AlreadyRidingException();
+        }
+    }
+
+    private void validateDailyLimit(Long userId) {
+        if (ridingRepository.existsByUserIdAndStatusAndRentedAtAfter(
+                userId, RidingStatus.COMPLETED, LocalDate.now().atStartOfDay())) {
+            throw new DailyRidingLimitException();
         }
     }
 
@@ -111,10 +129,5 @@ public class RidingService {
                 .mapToInt(s -> s.distanceMetersTo(returnPoint))
                 .min()
                 .orElse(0);
-    }
-
-    private Riding findRidingById(Long ridingId) {
-        return ridingRepository.findById(ridingId)
-                .orElseThrow(RidingNotFoundException::new);
     }
 }

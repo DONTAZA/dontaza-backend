@@ -3,9 +3,8 @@ package com.dontaza.dontazabackend.auth.application;
 import com.dontaza.dontazabackend.auth.domain.RefreshToken;
 import com.dontaza.dontazabackend.auth.domain.RefreshTokenRepository;
 import com.dontaza.dontazabackend.auth.dto.KakaoLoginRequest;
-import com.dontaza.dontazabackend.auth.dto.LoginResponse;
-import com.dontaza.dontazabackend.auth.dto.LoginResponse.MemberInfo;
-import com.dontaza.dontazabackend.auth.dto.TokenRefreshResponse;
+import com.dontaza.dontazabackend.auth.dto.LoginResult;
+import com.dontaza.dontazabackend.auth.dto.TokenResult;
 import com.dontaza.dontazabackend.auth.infrastructure.JwtProvider;
 import com.dontaza.dontazabackend.auth.infrastructure.KakaoApiClient;
 import com.dontaza.dontazabackend.auth.infrastructure.dto.KakaoTokenResponse;
@@ -29,7 +28,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
-    public LoginResponse kakaoLogin(KakaoLoginRequest request) {
+    public LoginResult kakaoLogin(KakaoLoginRequest request) {
         KakaoTokenResponse kakaoToken = kakaoApiClient.requestToken(
                 request.authorizationCode(), request.redirectUri());
         KakaoUserResponse kakaoUser = kakaoApiClient.requestUserInfo(kakaoToken.accessToken());
@@ -40,16 +39,11 @@ public class AuthService {
         String accessToken = jwtProvider.createAccessToken(member.getId());
         String refreshToken = createAndSaveRefreshToken(member.getId());
 
-        return new LoginResponse(
-                accessToken,
-                refreshToken,
-                isNewUser,
-                new MemberInfo(member.getId(), member.getName(), member.getProfileImageUrl())
-        );
+        return new LoginResult(accessToken, refreshToken, isNewUser, member);
     }
 
     @Transactional
-    public TokenRefreshResponse refreshToken(String refreshTokenValue) {
+    public TokenResult refreshToken(String refreshTokenValue) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
                 .orElseThrow(InvalidRefreshTokenException::new);
 
@@ -63,7 +57,7 @@ public class AuthService {
         String newAccessToken = jwtProvider.createAccessToken(refreshToken.getMemberId());
         String newRefreshToken = createAndSaveRefreshToken(refreshToken.getMemberId());
 
-        return new TokenRefreshResponse(newAccessToken, newRefreshToken);
+        return new TokenResult(newAccessToken, newRefreshToken);
     }
 
     @Transactional

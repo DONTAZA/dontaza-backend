@@ -43,10 +43,24 @@ public class BusinessViolationException extends CustomGlobalException {
         }
     }
 
+    public static final class DailyRidingLimitException extends BusinessViolationException {
+
+        public DailyRidingLimitException() {
+            super(ErrorCode.DAILY_RIDING_LIMIT, ErrorCode.DAILY_RIDING_LIMIT.getMessage());
+        }
+    }
+
     public static final class InvalidRefreshTokenException extends BusinessViolationException {
 
         public InvalidRefreshTokenException() {
             super(ErrorCode.INVALID_REFRESH_TOKEN, ErrorCode.INVALID_REFRESH_TOKEN.getMessage());
+        }
+    }
+
+    public static final class KakaoAuthFailedException extends BusinessViolationException {
+
+        public KakaoAuthFailedException() {
+            super(ErrorCode.KAKAO_AUTH_FAILED, ErrorCode.KAKAO_AUTH_FAILED.getMessage());
         }
     }
 }
