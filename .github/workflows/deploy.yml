@@ -29,6 +29,12 @@ jobs:
       - name: Gradle 빌드
         run: ./gradlew bootJar
 
+      - name: QEMU 설정
+        uses: docker/setup-qemu-action@v3
+
+      - name: Buildx 설정
+        uses: docker/setup-buildx-action@v3
+
       - name: Docker Hub 로그인
         uses: docker/login-action@v3
         with:
@@ -40,6 +46,7 @@ jobs:
         with:
           context: .
           push: true
+          platforms: linux/arm64
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/dontaza-backend:${{ github.sha }}
             ${{ secrets.DOCKERHUB_USERNAME }}/dontaza-backend:latest
