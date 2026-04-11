@@ -21,12 +21,20 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
+    private String profileImageUrl;
+
     private int totalPoints;
 
-    public Member(Long kakaoId, String name) {
+    public Member(Long kakaoId, String name, String profileImageUrl) {
         this.kakaoId = kakaoId;
         this.name = name;
+        this.profileImageUrl = profileImageUrl;
         this.totalPoints = 0;
+    }
+
+    public void updateProfile(String name, String profileImageUrl) {
+        this.name = name;
+        this.profileImageUrl = profileImageUrl;
     }
 
     public void addPoints(int points) {
