@@ -17,7 +17,7 @@ public record LoginResponse(
     public static LoginResponse from(boolean isNewUser, Member member) {
         return new LoginResponse(
                 isNewUser,
-                new MemberInfo(member.getId(), member.getName(), member.getProfileImageUrl())
+                new MemberInfo(member.getId(), member.getNickname(), member.getProfileImageUrl())
         );
     }
 }

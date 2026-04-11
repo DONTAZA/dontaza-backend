@@ -21,6 +21,9 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String nickname;
+
     private String profileImageUrl;
 
     private int totalPoints;
@@ -28,6 +31,7 @@ public class Member extends BaseTimeEntity {
     public Member(Long kakaoId, String name, String profileImageUrl) {
         this.kakaoId = kakaoId;
         this.name = name;
+        this.nickname = NicknameGenerator.generate();
         this.profileImageUrl = profileImageUrl;
         this.totalPoints = 0;
     }
