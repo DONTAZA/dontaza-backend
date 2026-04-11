@@ -23,7 +23,7 @@ public enum ErrorCode {
 
     // Station Error
     STATION_NOT_FOUND(NOT_FOUND, "ST01", "존재하지 않는 대여소 번호입니다"),
-    TOO_FAR_FROM_STATION(BAD_REQUEST, "ST02", "대여소에서 50m 초과 위치입니다"),
+    TOO_FAR_FROM_STATION(BAD_REQUEST, "ST02", "대여소에서 100m 초과 위치입니다"),
 
     // Riding Error
     ALREADY_RIDING(BAD_REQUEST, "R01", "이미 진행 중인 라이딩이 존재합니다"),
