@@ -29,6 +29,8 @@ public class StationService {
         return new StationVerifyResponse(
                 station.id(),
                 station.name(),
+                station.lat(),
+                station.lng(),
                 withinRange,
                 distance
         );
@@ -37,7 +39,7 @@ public class StationService {
     public Station findByStationNo(String stationNo) {
         List<Station> stations = publicBikeApiClient.fetchAllStations();
         return stations.stream()
-                .filter(station -> station.id().endsWith(stationNo))
+                .filter(station -> station.name().startsWith(stationNo + "."))
                 .findFirst()
                 .orElseThrow(StationNotFoundException::new);
     }
