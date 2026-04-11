@@ -68,7 +68,7 @@ public class Riding extends BaseTimeEntity {
     }
 
     public void cancelVerification() {
-        this.status = RidingStatus.CANCELLED;
+        this.status = RidingStatus.VERIFICATION_FAILED;
     }
 
     public boolean isRiding() {
@@ -77,7 +77,7 @@ public class Riding extends BaseTimeEntity {
     }
 
     private void validateReturnable() {
-        if (this.status == RidingStatus.COMPLETED || this.status == RidingStatus.CANCELLED) {
+        if (this.status == RidingStatus.COMPLETED || this.status == RidingStatus.VERIFICATION_FAILED) {
             throw new RidingAlreadyEndedException();
         }
         long elapsed = Duration.between(rentedAt, LocalDateTime.now()).getSeconds();

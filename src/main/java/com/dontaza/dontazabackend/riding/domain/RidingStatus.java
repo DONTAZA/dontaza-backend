@@ -4,5 +4,5 @@ public enum RidingStatus {
     WAITING_VERIFICATION,
     IN_PROGRESS,
     COMPLETED,
-    CANCELLED
+    VERIFICATION_FAILED
 }
