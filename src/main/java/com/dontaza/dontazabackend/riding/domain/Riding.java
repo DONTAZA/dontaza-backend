@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 public class Riding extends BaseTimeEntity {
 
     private static final int MINIMUM_RIDING_SECONDS = 300;
-    private static final int POINTS_PER_KILOMETER = 50;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +35,6 @@ public class Riding extends BaseTimeEntity {
 
     private boolean verifyAvailable;
 
-    private int distanceMeters;
     private int durationSeconds;
     private int earnedPoints;
 
@@ -49,13 +47,12 @@ public class Riding extends BaseTimeEntity {
         return riding;
     }
 
-    public void returnBike(String returnStationId, int distance) {
+    public void returnBike(String returnStationId, int earnedPoints) {
         validateReturnable();
         this.returnStationId = returnStationId;
         this.returnedAt = LocalDateTime.now();
         this.durationSeconds = (int) Duration.between(rentedAt, returnedAt).getSeconds();
-        this.distanceMeters = distance;
-        this.earnedPoints = calculatePoints(distance);
+        this.earnedPoints = earnedPoints;
         this.status = RidingStatus.COMPLETED;
     }
 
@@ -83,7 +80,4 @@ public class Riding extends BaseTimeEntity {
         }
     }
 
-    private int calculatePoints(int distanceMeters) {
-        return (distanceMeters / 1000) * POINTS_PER_KILOMETER;
-    }
 }

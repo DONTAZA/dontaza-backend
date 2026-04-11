@@ -16,7 +16,6 @@ import com.dontaza.dontazabackend.riding.dto.ReturnResponse;
 import com.dontaza.dontazabackend.riding.dto.RidingCurrentResponse;
 import com.dontaza.dontazabackend.riding.dto.VerifyResponse;
 import com.dontaza.dontazabackend.station.application.StationService;
-import com.dontaza.dontazabackend.station.domain.GeoPoint;
 import com.dontaza.dontazabackend.station.domain.Station;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -79,10 +78,8 @@ public class RidingService {
         Riding riding = findActiveRiding(userId);
         Station returnStation = stationService.findNearestStation(request.lat(), request.lng());
 
-        List<RidingBaselineStation> baselines = baselineStationRepository.findByRidingId(riding.getId());
-        int distance = calculateDistanceFromBaseline(baselines, returnStation);
-
-        riding.returnBike(returnStation.getId(), distance);
+        int points = riding.getStatus() == RidingStatus.IN_PROGRESS ? request.earnedPoints() : 0;
+        riding.returnBike(returnStation.getId(), points);
         return ReturnResponse.from(riding);
     }
 
@@ -122,12 +119,4 @@ public class RidingService {
         return current.getAvailableBikes() < baseline.getBaselineBikeCount();
     }
 
-    private int calculateDistanceFromBaseline(List<RidingBaselineStation> baselines, Station returnStation) {
-        GeoPoint returnPoint = new GeoPoint(returnStation.getLat(), returnStation.getLng());
-        return baselines.stream()
-                .map(b -> stationService.findById(b.getStationId()))
-                .mapToInt(s -> s.distanceMetersTo(returnPoint))
-                .min()
-                .orElse(0);
-    }
 }
