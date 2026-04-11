@@ -3,6 +3,7 @@ package com.dontaza.dontazabackend.global.response;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,10 @@ public enum ErrorCode {
     RIDING_NOT_VERIFIED(BAD_REQUEST, "R03", "대여 검증이 완료되지 않았습니다"),
     RIDING_ALREADY_ENDED(BAD_REQUEST, "R04", "이미 종료된 라이딩입니다"),
     RIDING_TOO_SHORT(BAD_REQUEST, "R05", "최소 5분 이상 라이딩해야 합니다"),
+
+    // Auth Error
+    INVALID_REFRESH_TOKEN(UNAUTHORIZED, "A01", "유효하지 않은 리프레시 토큰입니다"),
+    UNAUTHORIZED_ACCESS(UNAUTHORIZED, "A02", "인증이 필요합니다"),
 
     // Infrastructure Error
     EXTERNAL_API_FAIL(INTERNAL_SERVER_ERROR, "I01", "외부 API 처리 작업을 실패하였습니다");

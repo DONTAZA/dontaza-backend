@@ -42,4 +42,11 @@ public class BusinessViolationException extends CustomGlobalException {
             super(ErrorCode.RIDING_TOO_SHORT, ErrorCode.RIDING_TOO_SHORT.getMessage());
         }
     }
+
+    public static final class InvalidRefreshTokenException extends BusinessViolationException {
+
+        public InvalidRefreshTokenException() {
+            super(ErrorCode.INVALID_REFRESH_TOKEN, ErrorCode.INVALID_REFRESH_TOKEN.getMessage());
+        }
+    }
 }
