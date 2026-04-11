@@ -30,7 +30,7 @@ import java.util.List;
 public class RidingService {
 
     private static final List<RidingStatus> ACTIVE_STATUSES =
-            List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.IN_PROGRESS, RidingStatus.VERIFICATION_FAILED);
+            List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.IN_PROGRESS);
 
     private static final List<RidingStatus> VERIFIABLE_STATUSES =
             List.of(RidingStatus.WAITING_VERIFICATION, RidingStatus.VERIFICATION_FAILED);
