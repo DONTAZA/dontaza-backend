@@ -10,6 +10,7 @@ import com.dontaza.dontazabackend.riding.dto.RentResponse;
 import com.dontaza.dontazabackend.riding.dto.ReturnRequest;
 import com.dontaza.dontazabackend.riding.dto.ReturnResponse;
 import com.dontaza.dontazabackend.riding.dto.RidingCurrentResponse;
+import com.dontaza.dontazabackend.riding.dto.VerifyResponse;
 import com.dontaza.dontazabackend.station.application.StationService;
 import com.dontaza.dontazabackend.station.domain.Station;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,23 @@ public class RidingService {
 
         riding.returnBike(returnStation.getNumber(), returnStation.getName(), distance);
         return ReturnResponse.from(riding);
+    }
+
+    @Transactional
+    public VerifyResponse verify(Long ridingId) {
+        Riding riding = ridingRepository.findById(ridingId)
+                .orElseThrow(RidingNotFoundException::new);
+
+        Station station = stationService.findByStationNo(riding.getRentStationNo());
+        boolean bikeDecreased = station.getAvailableBikes() < riding.getBaselineBikeCount();
+
+        if (bikeDecreased) {
+            riding.verify();
+            return VerifyResponse.success();
+        }
+
+        riding.cancelVerification();
+        return VerifyResponse.fail();
     }
 
     @Transactional(readOnly = true)
