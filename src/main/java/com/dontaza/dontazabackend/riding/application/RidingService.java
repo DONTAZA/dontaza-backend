@@ -34,7 +34,7 @@ public class RidingService {
         stationService.validateProximity(request.stationNo(), request.lat(), request.lng());
 
         Station station = stationService.findByStationNo(request.stationNo());
-        Riding riding = Riding.rent(userId, station.id(), station.name(), station.availableBikes());
+        Riding riding = Riding.rent(userId, station.getNumber(), station.getName(), station.getAvailableBikes());
 
         ridingRepository.save(riding);
         return RentResponse.from(riding);
@@ -46,12 +46,12 @@ public class RidingService {
                 .orElseThrow(RidingNotFoundException::new);
         stationService.validateProximity(request.stationNo(), request.lat(), request.lng());
 
-        Station rentStation = stationService.findByStationNo(riding.getRentStationName().split("\\.")[0]);
+        Station rentStation = stationService.findByStationNo(riding.getRentStationNo());
         Station returnStation = stationService.findByStationNo(request.stationNo());
         int distance = rentStation.distanceMetersTo(
-                new com.dontaza.dontazabackend.station.domain.GeoPoint(returnStation.lat(), returnStation.lng()));
+                new com.dontaza.dontazabackend.station.domain.GeoPoint(returnStation.getLat(), returnStation.getLng()));
 
-        riding.returnBike(returnStation.id(), returnStation.name(), distance);
+        riding.returnBike(returnStation.getNumber(), returnStation.getName(), distance);
         return ReturnResponse.from(riding);
     }
 
