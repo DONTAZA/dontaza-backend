@@ -50,6 +50,12 @@ Trunk-Based Development (TBD)
 - `main`에 직접 커밋하거나 수명이 짧은 feature 브랜치에서 빠르게 머지
 - feature 브랜치는 1~2일 이내 머지
 
+## Commit Convention
+
+- 헤더(타입) 필수: `feat:`, `fix:`, `refactor:`, `test:`, `chore:`, `docs:`
+- body 없이 제목 한 줄로 작성
+- 코드 리뷰하기 쉽게 변경 단위를 잘게 쪼개서 커밋 (하나의 커밋 = 하나의 변경 목적)
+
 ## Code Rules
 
 ### Clean Code
