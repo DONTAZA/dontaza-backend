@@ -19,6 +19,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # Run a single test method
 ./gradlew test --tests "com.dontaza.dontazabackend.SomeTest.methodName"
+
+# Lint (Checkstyle)
+./gradlew checkstyleMain
 ```
 
 ## Stack
@@ -58,10 +61,14 @@ Trunk-Based Development (TBD)
 
 ## Code Rules
 
-### Clean Code
-- 메서드 길이: 15줄 이하
-- 메서드 파라미터: 3개 이하 (초과 시 객체로 묶는다)
+Checkstyle(`config/checkstyle/checkstyle.xml`)이 아래 규칙을 자동 검사한다.
+Pre-commit 훅이 Checkstyle + 커밋 메시지 컨벤션을 검사하므로, 위반 시 커밋이 차단된다.
+
+### Clean Code (Checkstyle 자동 검사)
+- 메서드 길이: 15줄 이하 (빈 줄 제외)
+- 메서드 파라미터: 3개 이하 (생성자는 제외, 초과 시 객체로 묶는다)
 - 들여쓰기 depth: 2 이하 (early return, 메서드 추출로 해결)
+- star import(`*`) 금지, 사용하지 않는 import 금지
 - 메서드 네이밍: 동사로 시작, 의도를 명확히 드러낸다
   - 좋은 예: `calculatePointsForDistance`, `verifyBikeRental`
   - 나쁜 예: `process`, `handle`, `doWork`
