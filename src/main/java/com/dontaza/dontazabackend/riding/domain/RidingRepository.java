@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface RidingRepository extends JpaRepository<Riding, Long> {
@@ -13,4 +14,6 @@ public interface RidingRepository extends JpaRepository<Riding, Long> {
     Optional<Riding> findFirstByUserIdAndStatusInOrderByRentedAtDesc(Long userId, Collection<RidingStatus> statuses);
 
     boolean existsByUserIdAndStatusAndRentedAtAfter(Long userId, RidingStatus status, LocalDateTime after);
+
+    List<Riding> findByUserId(Long userId);
 }
