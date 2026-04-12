@@ -6,6 +6,7 @@ import com.dontaza.dontazabackend.global.response.SuccessResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -21,6 +22,9 @@ public interface AuthApi {
 
     @DeleteMapping("/logout")
     SuccessResponse<Void> logout(HttpServletResponse response);
+
+    @PatchMapping("/agree")
+    SuccessResponse<Void> agreeToTerms();
 
     @DeleteMapping("/withdraw")
     SuccessResponse<Void> withdraw(HttpServletResponse response);

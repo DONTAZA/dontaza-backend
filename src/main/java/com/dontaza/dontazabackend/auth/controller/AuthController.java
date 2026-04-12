@@ -58,6 +58,13 @@ public class AuthController implements AuthApi {
     }
 
     @Override
+    public SuccessResponse<Void> agreeToTerms() {
+        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        authService.agreeToTerms(memberId);
+        return SuccessResponse.success(HttpStatus.OK);
+    }
+
+    @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public SuccessResponse<Void> withdraw(HttpServletResponse response) {
         Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

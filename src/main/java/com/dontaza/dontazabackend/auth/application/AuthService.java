@@ -37,8 +37,8 @@ public class AuthService {
                 request.authorizationCode(), request.redirectUri());
         KakaoUserResponse kakaoUser = kakaoApiClient.requestUserInfo(kakaoToken.accessToken());
 
-        boolean isNewUser = !memberRepository.findByKakaoId(kakaoUser.id()).isPresent();
         Member member = findOrCreateMember(kakaoUser);
+        boolean isNewUser = !member.isTermsAgreed();
 
         String accessToken = jwtProvider.createAccessToken(member.getId());
         String refreshToken = createAndSaveRefreshToken(member.getId());
@@ -62,6 +62,13 @@ public class AuthService {
         String newRefreshToken = createAndSaveRefreshToken(refreshToken.getMemberId());
 
         return new TokenResult(newAccessToken, newRefreshToken);
+    }
+
+    @Transactional
+    public void agreeToTerms(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+        member.agreeToTerms();
     }
 
     @Transactional
