@@ -59,10 +59,15 @@ Trunk-Based Development (TBD)
 - body 없이 제목 한 줄로 작성
 - 코드 리뷰하기 쉽게 변경 단위를 잘게 쪼개서 커밋 (하나의 커밋 = 하나의 변경 목적)
 
+## 자동 커밋 규칙
+
+기능 구현이 완료되면 빌드(`./gradlew build`)를 실행하고, 통과 시 변경 목적별로 잘게 쪼개서 자동으로 커밋한다.
+서브모듈(dontaza-env, dontaza-wiki) 변경이 있으면 서브모듈을 먼저 커밋/푸시한 뒤 메인 레포를 커밋한다.
+
 ## Code Rules
 
 Checkstyle(`config/checkstyle/checkstyle.xml`)이 아래 규칙을 자동 검사한다.
-Pre-commit 훅이 Checkstyle + 커밋 메시지 컨벤션을 검사하므로, 위반 시 커밋이 차단된다.
+Claude Code 훅(`.claude/settings.json`)이 Java 파일 수정 시 Checkstyle을 실행하여 위반을 피드백한다.
 
 ### Clean Code (Checkstyle 자동 검사)
 - 메서드 길이: 15줄 이하 (빈 줄 제외)
