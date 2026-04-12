@@ -10,14 +10,15 @@ public record LoginResponse(
     public record MemberInfo(
             Long id,
             String nickname,
-            String profileImageUrl
+            String profileImageUrl,
+            boolean termsAgreed
     ) {
     }
 
     public static LoginResponse from(boolean isNewUser, Member member) {
         return new LoginResponse(
                 isNewUser,
-                new MemberInfo(member.getId(), member.getNickname(), member.getProfileImageUrl())
+                new MemberInfo(member.getId(), member.getNickname(), member.getProfileImageUrl(), member.isTermsAgreed())
         );
     }
 }
