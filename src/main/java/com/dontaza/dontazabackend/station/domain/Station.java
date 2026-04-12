@@ -1,7 +1,9 @@
 package com.dontaza.dontazabackend.station.domain;
 
 import com.dontaza.dontazabackend.global.domain.BaseTimeEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,11 +37,11 @@ public class Station extends BaseTimeEntity {
         this.availableBikes = availableBikes;
     }
 
-    public void updateInfo(String name, double lat, double lng, int availableBikes) {
-        this.name = name;
-        this.lat = lat;
-        this.lng = lng;
-        this.availableBikes = availableBikes;
+    public void updateFrom(Station source) {
+        this.name = source.name;
+        this.lat = source.lat;
+        this.lng = source.lng;
+        this.availableBikes = source.availableBikes;
     }
 
     public int distanceMetersTo(GeoPoint target) {
