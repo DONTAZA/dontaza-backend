@@ -37,6 +37,7 @@ public class CookieProvider {
         return buildCookie(REFRESH_TOKEN_COOKIE, "", 0, "/api/auth");
     }
 
+    @SuppressWarnings("checkstyle:ParameterNumber")
     private ResponseCookie buildCookie(String name, String value, long maxAgeSeconds, String path) {
         return ResponseCookie.from(name, value)
                 .httpOnly(true)

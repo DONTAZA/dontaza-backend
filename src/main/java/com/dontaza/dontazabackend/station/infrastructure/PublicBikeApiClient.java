@@ -45,19 +45,19 @@ public class PublicBikeApiClient {
     public void syncAllStations() {
         try {
             List<Station> stations = loadAllStationsFromApi();
-            for (Station station : stations) {
-                stationRepository.findById(station.getId())
-                        .ifPresentOrElse(
-                                existing -> existing.updateInfo(
-                                        station.getName(), station.getLat(),
-                                        station.getLng(), station.getAvailableBikes()),
-                                () -> stationRepository.save(station)
-                        );
-            }
+            stations.forEach(this::upsertStation);
             log.info("Station sync completed: {} stations", stations.size());
         } catch (Exception e) {
             log.warn("Station sync failed: {}", e.getMessage());
         }
+    }
+
+    private void upsertStation(Station station) {
+        stationRepository.findById(station.getId())
+                .ifPresentOrElse(
+                        existing -> existing.updateFrom(station),
+                        () -> stationRepository.save(station)
+                );
     }
 
     private List<Station> loadAllStationsFromApi() {
@@ -68,20 +68,8 @@ public class PublicBikeApiClient {
 
     private List<Station> fetchStationsByRegion(String regionCode) {
         List<Station> result = new ArrayList<>();
-        int pageNo = 1;
-
         try {
-            while (true) {
-                PublicBikeApiResponse response = requestPage(regionCode, pageNo);
-                List<Station> stations = toStations(response);
-                result.addAll(stations);
-
-                int totalCount = Integer.parseInt(response.body().totalCount());
-                if (result.size() >= totalCount || stations.isEmpty()) {
-                    break;
-                }
-                pageNo++;
-            }
+            fetchAllPages(regionCode, result);
             log.info("Fetched {} stations for region {}", result.size(), regionCode);
         } catch (Exception e) {
             log.warn("Failed to fetch stations for region {}: {}", regionCode, e.getMessage());
@@ -89,19 +77,39 @@ public class PublicBikeApiClient {
         return result;
     }
 
+    private void fetchAllPages(String regionCode, List<Station> result) throws Exception {
+        int pageNo = 1;
+        while (true) {
+            PublicBikeApiResponse response = requestPage(regionCode, pageNo);
+            List<Station> stations = toStations(response);
+            result.addAll(stations);
+            int totalCount = Integer.parseInt(response.body().totalCount());
+            if (result.size() >= totalCount || stations.isEmpty()) {
+                break;
+            }
+            pageNo++;
+        }
+    }
+
     private static final int MAX_RETRIES = 3;
 
     private PublicBikeApiResponse requestPage(String regionCode, int pageNo) throws Exception {
+        HttpRequest request = buildHttpRequest(regionCode, pageNo);
+        return sendWithRetry(request);
+    }
+
+    private HttpRequest buildHttpRequest(String regionCode, int pageNo) throws Exception {
         String query = "serviceKey=" + properties.serviceKey()
                 + "&pageNo=" + pageNo
                 + "&numOfRows=" + PAGE_SIZE
                 + "&type=json&lcgvmnInstCd=" + regionCode;
         URI uri = new URI("https", "apis.data.go.kr",
                 "/B551982/pbdo_v2/inf_101_00010002_v2", query, null);
-
-        HttpRequest request = HttpRequest.newBuilder()
+        return HttpRequest.newBuilder()
                 .uri(uri).timeout(Duration.ofSeconds(5)).GET().build();
+    }
 
+    private PublicBikeApiResponse sendWithRetry(HttpRequest request) throws Exception {
         Exception lastException = null;
         for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
             try {
@@ -109,13 +117,16 @@ public class PublicBikeApiClient {
                 return objectMapper.readValue(response.body(), PublicBikeApiResponse.class);
             } catch (Exception e) {
                 lastException = e;
-                long backoff = (long) Math.pow(2, attempt) * 5000;
-                log.warn("API request failed (attempt {}/{}), retrying in {}ms: {}",
-                        attempt + 1, MAX_RETRIES, backoff, e.getMessage());
-                Thread.sleep(backoff);
+                sleepWithBackoff(attempt);
             }
         }
         throw lastException;
+    }
+
+    private void sleepWithBackoff(int attempt) throws InterruptedException {
+        long backoff = (long) Math.pow(2, attempt) * 5000;
+        log.warn("API request failed (attempt {}/{}), retrying in {}ms", attempt + 1, MAX_RETRIES, backoff);
+        Thread.sleep(backoff);
     }
 
     private List<Station> toStations(PublicBikeApiResponse response) {
