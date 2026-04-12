@@ -21,4 +21,7 @@ public interface AuthApi {
 
     @DeleteMapping("/logout")
     SuccessResponse<Void> logout(HttpServletResponse response);
+
+    @DeleteMapping("/withdraw")
+    SuccessResponse<Void> withdraw(HttpServletResponse response);
 }

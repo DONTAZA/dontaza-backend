@@ -10,9 +10,12 @@ import com.dontaza.dontazabackend.auth.infrastructure.KakaoApiClient;
 import com.dontaza.dontazabackend.auth.infrastructure.dto.KakaoTokenResponse;
 import com.dontaza.dontazabackend.auth.infrastructure.dto.KakaoUserResponse;
 import com.dontaza.dontazabackend.global.exception.BusinessViolationException.InvalidRefreshTokenException;
+import com.dontaza.dontazabackend.global.exception.ResourceException.MemberNotFoundException;
 import com.dontaza.dontazabackend.member.domain.Member;
 import com.dontaza.dontazabackend.member.domain.MemberRepository;
+import com.dontaza.dontazabackend.member.domain.MemberWithdrawnEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public LoginResult kakaoLogin(KakaoLoginRequest request) {
@@ -63,6 +67,27 @@ public class AuthService {
     @Transactional
     public void logout(Long memberId) {
         refreshTokenRepository.deleteByMemberId(memberId);
+    }
+
+    @Transactional
+    public void withdraw(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+
+        kakaoApiClient.unlinkUser(member.getKakaoId());
+        deleteMemberData(member);
+    }
+
+    @Transactional
+    public void withdrawByKakaoId(Long kakaoId) {
+        memberRepository.findByKakaoId(kakaoId)
+                .ifPresent(this::deleteMemberData);
+    }
+
+    private void deleteMemberData(Member member) {
+        eventPublisher.publishEvent(new MemberWithdrawnEvent(member.getId()));
+        refreshTokenRepository.deleteByMemberId(member.getId());
+        memberRepository.delete(member);
     }
 
     private Member findOrCreateMember(KakaoUserResponse kakaoUser) {

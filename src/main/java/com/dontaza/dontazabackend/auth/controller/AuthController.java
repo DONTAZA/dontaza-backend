@@ -57,6 +57,15 @@ public class AuthController implements AuthApi {
         return SuccessResponse.success(HttpStatus.NO_CONTENT);
     }
 
+    @Override
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public SuccessResponse<Void> withdraw(HttpServletResponse response) {
+        Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        authService.withdraw(memberId);
+        deleteTokenCookies(response);
+        return SuccessResponse.success(HttpStatus.NO_CONTENT);
+    }
+
     private void addTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieProvider.createAccessTokenCookie(accessToken).toString());
