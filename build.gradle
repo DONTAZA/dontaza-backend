@@ -44,9 +44,21 @@ tasks.named('test') {
 tasks.register('copyConfig', Copy) {
     from 'dontaza-env'
     include 'application*.yml'
+    exclude 'application-test.yml'
     into 'src/main/resources'
+}
+
+tasks.register('copyTestConfig', Copy) {
+    from 'dontaza-env'
+    include 'application-test.yml'
+    into 'src/test/resources'
+    rename 'application-test.yml', 'application.yml'
 }
 
 tasks.named('processResources') {
     dependsOn 'copyConfig'
+}
+
+tasks.named('processTestResources') {
+    dependsOn 'copyTestConfig'
 }
