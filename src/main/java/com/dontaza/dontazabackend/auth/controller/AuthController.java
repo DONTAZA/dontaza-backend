@@ -43,8 +43,13 @@ public class AuthController implements AuthApi {
     public SuccessResponse<Void> refreshToken(HttpServletRequest request,
                                                HttpServletResponse response) {
         String refreshToken = extractRefreshTokenFromCookie(request);
-        TokenResult result = authService.refreshToken(refreshToken);
-        addTokenCookies(response, result.accessToken(), result.refreshToken());
+        try {
+            TokenResult result = authService.refreshToken(refreshToken);
+            addTokenCookies(response, result.accessToken(), result.refreshToken());
+        } catch (InvalidRefreshTokenException e) {
+            deleteTokenCookies(response);
+            throw e;
+        }
         return SuccessResponse.success(HttpStatus.OK);
     }
 
