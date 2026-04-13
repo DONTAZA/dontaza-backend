@@ -35,7 +35,7 @@ public class Member extends BaseTimeEntity {
     private int totalPoints;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'USER'")
     private Role role;
 
     private boolean termsAgreed;
