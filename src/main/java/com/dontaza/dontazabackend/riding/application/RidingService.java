@@ -94,6 +94,12 @@ public class RidingService {
         return ReturnResponse.from(riding);
     }
 
+    @Transactional
+    public void cancelRiding(Long userId) {
+        Riding riding = findActiveRiding(userId);
+        riding.cancel();
+    }
+
     @Transactional(readOnly = true)
     public RidingCurrentResponse getCurrentRiding(Long userId) {
         return ridingRepository.findFirstByUserIdAndStatusInOrderByRentedAtDesc(userId, ACTIVE_STATUSES)

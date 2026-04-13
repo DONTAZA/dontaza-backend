@@ -42,6 +42,12 @@ public class RidingController implements RidingApi {
         return SuccessResponse.success(HttpStatus.OK, ridingService.returnBike(getCurrentMemberId(), request));
     }
 
+    @Override
+    public SuccessResponse<Void> cancelRiding() {
+        ridingService.cancelRiding(getCurrentMemberId());
+        return SuccessResponse.success(HttpStatus.NO_CONTENT);
+    }
+
     private Long getCurrentMemberId() {
         return (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }

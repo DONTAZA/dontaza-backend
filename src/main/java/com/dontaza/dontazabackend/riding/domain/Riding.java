@@ -71,6 +71,10 @@ public class Riding extends BaseTimeEntity {
         this.status = RidingStatus.VERIFICATION_FAILED;
     }
 
+    public void cancel() {
+        this.status = RidingStatus.CANCELLED;
+    }
+
     private void validateReturnable() {
         if (this.status == RidingStatus.COMPLETED) {
             throw new RidingAlreadyEndedException();

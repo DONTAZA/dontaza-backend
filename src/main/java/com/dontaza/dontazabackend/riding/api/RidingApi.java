@@ -7,6 +7,7 @@ import com.dontaza.dontazabackend.riding.dto.ReturnRequest;
 import com.dontaza.dontazabackend.riding.dto.ReturnResponse;
 import com.dontaza.dontazabackend.riding.dto.RidingCurrentResponse;
 import com.dontaza.dontazabackend.riding.dto.VerifyResponse;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,4 +25,7 @@ public interface RidingApi {
 
     @PostMapping("/return")
     SuccessResponse<ReturnResponse> returnBike(@RequestBody ReturnRequest request);
+
+    @DeleteMapping("/cancel")
+    SuccessResponse<Void> cancelRiding();
 }
