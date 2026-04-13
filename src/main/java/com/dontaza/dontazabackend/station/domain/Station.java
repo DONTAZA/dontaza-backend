@@ -4,11 +4,14 @@ import com.dontaza.dontazabackend.global.domain.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(indexes = @Index(name = "idx_station_lat_lng", columnList = "lat, lng"))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Station extends BaseTimeEntity {
