@@ -18,4 +18,6 @@ public interface RidingRepository extends JpaRepository<Riding, Long> {
     List<Riding> findByUserId(Long userId);
 
     List<Riding> findByUserIdAndStatusIn(Long userId, Collection<RidingStatus> statuses);
+
+    List<Riding> findByUserIdAndStatusAndRentedAtAfter(Long userId, RidingStatus status, LocalDateTime after);
 }

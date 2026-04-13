@@ -46,10 +46,7 @@ public class RidingService {
     @Transactional
     public RentResponse rent(final Long userId, final RentRequest request) {
         validateNotAlreadyRiding(userId);
-        Member member = findMember(userId);
-        if (!member.isAdmin()) {
-            validateDailyLimit(userId);
-        }
+        validateDailyLimit(userId);
 
         List<Station> nearbyStations = stationService.findNearbyStations(request.lat(), request.lng());
         if (nearbyStations.isEmpty()) {
@@ -102,6 +99,13 @@ public class RidingService {
         activeRidings.forEach(Riding::cancel);
         List<Long> ids = activeRidings.stream().map(Riding::getId).toList();
         return new CancelResponse(ids);
+    }
+
+    @Transactional
+    public void resetDailyLimit(final Long userId) {
+        List<Riding> todayCompleted = ridingRepository.findByUserIdAndStatusAndRentedAtAfter(
+                userId, RidingStatus.COMPLETED, LocalDate.now().atStartOfDay());
+        ridingRepository.deleteAll(todayCompleted);
     }
 
     @Transactional(readOnly = true)
