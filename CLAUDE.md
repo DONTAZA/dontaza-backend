@@ -85,7 +85,7 @@ Claude Code 훅(`.claude/settings.json`)이 Java 파일 수정 시 Checkstyle을
 
 ### RESTful API
 - HTTP 메서드는 의미에 맞게 사용한다
-  - `GET`: 조회 (멱등)
+  - `GET`: 조회 (멱등, 바디 금지)
   - `POST`: 생성
   - `PATCH`: 부분 수정, 상태 변경
   - `PUT`: 전체 교체
@@ -94,6 +94,7 @@ Claude Code 훅(`.claude/settings.json`)이 Java 파일 수정 시 Checkstyle을
   - 좋은 예: `PATCH /api/riding/cancel`, `POST /api/riding/rent`
   - 나쁜 예: `GET /api/getRiding`, `POST /api/doReturn`
 - 상태 변경은 PATCH, 리소스 삭제만 DELETE를 사용한다
+- 특정 리소스를 식별할 때는 `@PathVariable`을 사용한다 (`GET /api/riding/{id}`)
 
 ### OOP
 - 객체에게 메시지를 보내라, getter로 꺼내서 외부에서 판단하지 마라
@@ -106,6 +107,7 @@ Claude Code 훅(`.claude/settings.json`)이 Java 파일 수정 시 Checkstyle을
 - **Controller, Entity, DTO, 유틸 등**: 단위 테스트
 - **Repository**: 테스트 작성하지 않음
 - BDD 스타일 (Given-When-Then)
+- `@Nested` 사용 금지 — 플랫하게 테스트 메서드를 나열한다
 
 ```java
 @Test
