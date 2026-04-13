@@ -1,6 +1,7 @@
 package com.dontaza.dontazabackend.global.response;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -40,6 +41,7 @@ public enum ErrorCode {
     // Auth Error
     INVALID_REFRESH_TOKEN(UNAUTHORIZED, "A01", "유효하지 않은 리프레시 토큰입니다"),
     UNAUTHORIZED_ACCESS(UNAUTHORIZED, "A02", "인증이 필요합니다"),
+    FORBIDDEN_ACCESS(FORBIDDEN, "A04", "권한이 없습니다"),
     KAKAO_AUTH_FAILED(UNAUTHORIZED, "A03", "카카오 인증에 실패했습니다. 인가 코드를 확인해주세요"),
 
     // Infrastructure Error

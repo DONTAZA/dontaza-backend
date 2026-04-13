@@ -63,4 +63,11 @@ public class BusinessViolationException extends CustomGlobalException {
             super(ErrorCode.KAKAO_AUTH_FAILED, ErrorCode.KAKAO_AUTH_FAILED.getMessage());
         }
     }
+
+    public static final class ForbiddenAccessException extends BusinessViolationException {
+
+        public ForbiddenAccessException() {
+            super(ErrorCode.FORBIDDEN_ACCESS, ErrorCode.FORBIDDEN_ACCESS.getMessage());
+        }
+    }
 }
