@@ -16,4 +16,6 @@ public interface RidingRepository extends JpaRepository<Riding, Long> {
     boolean existsByUserIdAndStatusAndRentedAtAfter(Long userId, RidingStatus status, LocalDateTime after);
 
     List<Riding> findByUserId(Long userId);
+
+    List<Riding> findByUserIdAndStatusIn(Long userId, Collection<RidingStatus> statuses);
 }

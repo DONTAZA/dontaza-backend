@@ -96,8 +96,8 @@ public class RidingService {
 
     @Transactional
     public void cancelRiding(Long userId) {
-        Riding riding = findActiveRiding(userId);
-        riding.cancel();
+        ridingRepository.findByUserIdAndStatusIn(userId, ACTIVE_STATUSES)
+                .forEach(Riding::cancel);
     }
 
     @Transactional(readOnly = true)
