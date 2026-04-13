@@ -10,7 +10,7 @@ public record ReturnResponse(
         String status
 ) {
 
-    public static ReturnResponse from(Riding riding) {
+    public static ReturnResponse from(final Riding riding) {
         return new ReturnResponse(
                 riding.getId(),
                 riding.getReturnStationId(),

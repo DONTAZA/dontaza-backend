@@ -29,7 +29,7 @@ public class RidingBaselineStation extends BaseTimeEntity {
     private String stationName;
     private int baselineBikeCount;
 
-    public RidingBaselineStation(Riding riding, String stationId, String stationName, int baselineBikeCount) {
+    public RidingBaselineStation(final Riding riding, final String stationId, final String stationName, final int baselineBikeCount) {
         this.riding = riding;
         this.stationId = stationId;
         this.stationName = stationName;

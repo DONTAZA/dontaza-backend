@@ -78,6 +78,7 @@ Claude Code 훅(`.claude/settings.json`)이 Java 파일 수정 시 Checkstyle을
 - 메서드 길이: 15줄 이하 (빈 줄 제외)
 - 메서드 파라미터: 3개 이하 (생성자는 제외, 초과 시 객체로 묶는다)
 - 들여쓰기 depth: 2 이하 (early return, 메서드 추출로 해결)
+- 메서드 파라미터에 `final` 필수
 - star import(`*`) 금지, 사용하지 않는 import 금지
 - 메서드 네이밍: 동사로 시작, 의도를 명확히 드러낸다
   - 좋은 예: `calculatePointsForDistance`, `verifyBikeRental`

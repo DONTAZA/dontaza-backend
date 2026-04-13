@@ -19,7 +19,7 @@ public class KakaoWebhookController {
     private final AuthService authService;
 
     @PostMapping("/unlink")
-    public ResponseEntity<Void> handleUnlink(@RequestBody KakaoUnlinkRequest request) {
+    public ResponseEntity<Void> handleUnlink(final @RequestBody KakaoUnlinkRequest request) {
         log.info("Kakao unlink webhook received: kakaoId={}", request.userId());
         authService.withdrawByKakaoId(request.userId());
         return ResponseEntity.ok().build();

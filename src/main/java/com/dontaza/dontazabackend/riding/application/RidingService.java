@@ -44,7 +44,7 @@ public class RidingService {
     private final StationService stationService;
 
     @Transactional
-    public RentResponse rent(Long userId, RentRequest request) {
+    public RentResponse rent(final Long userId, final RentRequest request) {
         validateNotAlreadyRiding(userId);
         Member member = findMember(userId);
         if (!member.isAdmin()) {
@@ -64,7 +64,7 @@ public class RidingService {
     }
 
     @Transactional
-    public VerifyResponse verify(Long userId) {
+    public VerifyResponse verify(final Long userId) {
         Riding riding = ridingRepository.findFirstByUserIdAndStatusInOrderByRentedAtDesc(userId, VERIFIABLE_STATUSES)
                 .orElseThrow(RidingNotFoundException::new);
 
@@ -82,7 +82,7 @@ public class RidingService {
     }
 
     @Transactional
-    public ReturnResponse returnBike(Long userId, ReturnRequest request) {
+    public ReturnResponse returnBike(final Long userId, final ReturnRequest request) {
         Riding riding = findActiveRiding(userId);
         Station returnStation = stationService.findNearestStation(request.lat(), request.lng());
 
@@ -97,7 +97,7 @@ public class RidingService {
     }
 
     @Transactional
-    public CancelResponse cancelRiding(Long userId) {
+    public CancelResponse cancelRiding(final Long userId) {
         List<Riding> activeRidings = ridingRepository.findByUserIdAndStatusIn(userId, ACTIVE_STATUSES);
         activeRidings.forEach(Riding::cancel);
         List<Long> ids = activeRidings.stream().map(Riding::getId).toList();
@@ -105,43 +105,43 @@ public class RidingService {
     }
 
     @Transactional(readOnly = true)
-    public RidingCurrentResponse getCurrentRiding(Long userId) {
+    public RidingCurrentResponse getCurrentRiding(final Long userId) {
         return ridingRepository.findFirstByUserIdAndStatusInOrderByRentedAtDesc(userId, ACTIVE_STATUSES)
                 .map(RidingCurrentResponse::from)
                 .orElseGet(RidingCurrentResponse::empty);
     }
 
-    private Riding findActiveRiding(Long userId) {
+    private Riding findActiveRiding(final Long userId) {
         return ridingRepository.findFirstByUserIdAndStatusInOrderByRentedAtDesc(userId, ACTIVE_STATUSES)
                 .orElseThrow(RidingNotFoundException::new);
     }
 
-    private Member findMember(Long userId) {
+    private Member findMember(final Long userId) {
         return memberRepository.findById(userId)
                 .orElseThrow(MemberNotFoundException::new);
     }
 
-    private void validateNotAlreadyRiding(Long userId) {
+    private void validateNotAlreadyRiding(final Long userId) {
         if (ridingRepository.existsByUserIdAndStatusIn(userId, ACTIVE_STATUSES)) {
             throw new AlreadyRidingException();
         }
     }
 
-    private void validateDailyLimit(Long userId) {
+    private void validateDailyLimit(final Long userId) {
         if (ridingRepository.existsByUserIdAndStatusAndRentedAtAfter(
                 userId, RidingStatus.COMPLETED, LocalDate.now().atStartOfDay())) {
             throw new DailyRidingLimitException();
         }
     }
 
-    private void saveBaselines(Riding riding, List<Station> stations) {
+    private void saveBaselines(final Riding riding, final List<Station> stations) {
         List<RidingBaselineStation> baselines = stations.stream()
                 .map(s -> new RidingBaselineStation(riding, s.getId(), s.getName(), s.getAvailableBikes()))
                 .toList();
         baselineStationRepository.saveAll(baselines);
     }
 
-    private boolean hasBikeCountDecreased(RidingBaselineStation baseline) {
+    private boolean hasBikeCountDecreased(final RidingBaselineStation baseline) {
         Station current = stationService.findById(baseline.getStationId());
         return current.getAvailableBikes() < baseline.getBaselineBikeCount();
     }

@@ -31,7 +31,7 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
@@ -46,16 +46,16 @@ public class SecurityConfig {
         return http.build();
     }
 
-    private void configureAuthorization(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
+    private void configureAuthorization(final AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
         auth
                 .requestMatchers("/api/auth/kakao", "/api/auth/token/refresh", "/api/auth/kakao/unlink").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated();
     }
 
-    private void writeUnauthorizedResponse(HttpServletRequest request,
-                                           HttpServletResponse response,
-                                           AuthenticationException authException) throws IOException {
+    private void writeUnauthorizedResponse(final HttpServletRequest request,
+                                           final HttpServletResponse response,
+                                           final AuthenticationException authException) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(

@@ -30,8 +30,8 @@ public class PublicBikeApiClient {
     private final ObjectMapper objectMapper;
     private final StationRepository stationRepository;
 
-    public PublicBikeApiClient(PublicBikeApiProperties properties, ObjectMapper objectMapper,
-                               StationRepository stationRepository) {
+    public PublicBikeApiClient(final PublicBikeApiProperties properties, final ObjectMapper objectMapper,
+                               final StationRepository stationRepository) {
         this.properties = properties;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(2))
@@ -52,7 +52,7 @@ public class PublicBikeApiClient {
         }
     }
 
-    private void upsertStation(Station station) {
+    private void upsertStation(final Station station) {
         stationRepository.findById(station.getId())
                 .ifPresentOrElse(
                         existing -> existing.updateFrom(station),
@@ -66,7 +66,7 @@ public class PublicBikeApiClient {
                 .toList();
     }
 
-    private List<Station> fetchStationsByRegion(String regionCode) {
+    private List<Station> fetchStationsByRegion(final String regionCode) {
         List<Station> result = new ArrayList<>();
         try {
             fetchAllPages(regionCode, result);
@@ -77,7 +77,7 @@ public class PublicBikeApiClient {
         return result;
     }
 
-    private void fetchAllPages(String regionCode, List<Station> result) throws Exception {
+    private void fetchAllPages(final String regionCode, final List<Station> result) throws Exception {
         int pageNo = 1;
         while (true) {
             PublicBikeApiResponse response = requestPage(regionCode, pageNo);
@@ -93,12 +93,12 @@ public class PublicBikeApiClient {
 
     private static final int MAX_RETRIES = 3;
 
-    private PublicBikeApiResponse requestPage(String regionCode, int pageNo) throws Exception {
+    private PublicBikeApiResponse requestPage(final String regionCode, final int pageNo) throws Exception {
         HttpRequest request = buildHttpRequest(regionCode, pageNo);
         return sendWithRetry(request);
     }
 
-    private HttpRequest buildHttpRequest(String regionCode, int pageNo) throws Exception {
+    private HttpRequest buildHttpRequest(final String regionCode, final int pageNo) throws Exception {
         String query = "serviceKey=" + properties.serviceKey()
                 + "&pageNo=" + pageNo
                 + "&numOfRows=" + PAGE_SIZE
@@ -109,7 +109,7 @@ public class PublicBikeApiClient {
                 .uri(uri).timeout(Duration.ofSeconds(5)).GET().build();
     }
 
-    private PublicBikeApiResponse sendWithRetry(HttpRequest request) throws Exception {
+    private PublicBikeApiResponse sendWithRetry(final HttpRequest request) throws Exception {
         Exception lastException = null;
         for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
             try {
@@ -123,13 +123,13 @@ public class PublicBikeApiClient {
         throw lastException;
     }
 
-    private void sleepWithBackoff(int attempt) throws InterruptedException {
+    private void sleepWithBackoff(final int attempt) throws InterruptedException {
         long backoff = (long) Math.pow(2, attempt) * 5000;
         log.warn("API request failed (attempt {}/{}), retrying in {}ms", attempt + 1, MAX_RETRIES, backoff);
         Thread.sleep(backoff);
     }
 
-    private List<Station> toStations(PublicBikeApiResponse response) {
+    private List<Station> toStations(final PublicBikeApiResponse response) {
         if (response == null || response.body() == null || response.body().item() == null) {
             return Collections.emptyList();
         }
@@ -138,7 +138,7 @@ public class PublicBikeApiClient {
                 .toList();
     }
 
-    private Station toStation(Item item) {
+    private Station toStation(final Item item) {
         return new Station(
                 item.rntstnId(),
                 item.rntstnNm().trim(),

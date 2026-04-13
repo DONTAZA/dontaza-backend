@@ -11,7 +11,7 @@ public record RentResponse(
         String status
 ) {
 
-    public static RentResponse of(Riding riding, List<Station> nearbyStations) {
+    public static RentResponse of(final Riding riding, final List<Station> nearbyStations) {
         List<String> stationIds = nearbyStations.stream()
                 .map(Station::getId)
                 .toList();

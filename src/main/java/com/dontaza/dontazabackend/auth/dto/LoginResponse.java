@@ -15,7 +15,7 @@ public record LoginResponse(
     ) {
     }
 
-    public static LoginResponse from(boolean isNewUser, Member member) {
+    public static LoginResponse from(final boolean isNewUser, final Member member) {
         return new LoginResponse(
                 isNewUser,
                 new MemberInfo(member.getId(), member.getNickname(), member.getProfileImageUrl(), member.isTermsAgreed())

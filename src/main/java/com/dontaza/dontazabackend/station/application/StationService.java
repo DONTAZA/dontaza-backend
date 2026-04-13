@@ -20,14 +20,14 @@ public class StationService {
 
     private final StationRepository stationRepository;
 
-    public List<Station> findNearbyStations(double lat, double lng) {
+    public List<Station> findNearbyStations(final double lat, final double lng) {
         GeoPoint userLocation = new GeoPoint(lat, lng);
         return findCandidates(lat, lng).stream()
                 .filter(s -> s.isWithinRadius(userLocation, PROXIMITY_RADIUS_METERS))
                 .toList();
     }
 
-    public Station findNearestStation(double lat, double lng) {
+    public Station findNearestStation(final double lat, final double lng) {
         GeoPoint userLocation = new GeoPoint(lat, lng);
         return findCandidates(lat, lng).stream()
                 .filter(s -> s.isWithinRadius(userLocation, PROXIMITY_RADIUS_METERS))
@@ -35,12 +35,12 @@ public class StationService {
                 .orElseThrow(TooFarFromStationException::new);
     }
 
-    private List<Station> findCandidates(double lat, double lng) {
+    private List<Station> findCandidates(final double lat, final double lng) {
         BoundingBox box = BoundingBox.of(lat, lng, PROXIMITY_RADIUS_METERS);
         return stationRepository.findWithinBoundingBox(box);
     }
 
-    public Station findById(String stationId) {
+    public Station findById(final String stationId) {
         return stationRepository.findById(stationId)
                 .orElseThrow(StationNotFoundException::new);
     }

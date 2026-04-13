@@ -24,7 +24,7 @@ public class RidingController implements RidingApi {
     private final RidingService ridingService;
 
     @Override
-    public SuccessResponse<RentResponse> rent(RentRequest request) {
+    public SuccessResponse<RentResponse> rent(final RentRequest request) {
         return SuccessResponse.success(HttpStatus.OK, ridingService.rent(getCurrentMemberId(), request));
     }
 
@@ -39,7 +39,7 @@ public class RidingController implements RidingApi {
     }
 
     @Override
-    public SuccessResponse<ReturnResponse> returnBike(ReturnRequest request) {
+    public SuccessResponse<ReturnResponse> returnBike(final ReturnRequest request) {
         return SuccessResponse.success(HttpStatus.OK, ridingService.returnBike(getCurrentMemberId(), request));
     }
 

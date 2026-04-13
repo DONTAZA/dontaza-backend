@@ -29,12 +29,12 @@ public class KakaoApiClient {
     private final ObjectMapper objectMapper;
 
     public KakaoApiClient(
-            @Value("${kakao.rest-api-key}") String restApiKey,
-            @Value("${kakao.client-secret}") String clientSecret,
-            @Value("${kakao.admin-key}") String adminKey,
-            @Value("${kakao.token-url}") String tokenUrl,
-            @Value("${kakao.user-info-url}") String userInfoUrl,
-            ObjectMapper objectMapper
+            final @Value("${kakao.rest-api-key}") String restApiKey,
+            final @Value("${kakao.client-secret}") String clientSecret,
+            final @Value("${kakao.admin-key}") String adminKey,
+            final @Value("${kakao.token-url}") String tokenUrl,
+            final @Value("${kakao.user-info-url}") String userInfoUrl,
+            final ObjectMapper objectMapper
     ) {
         this.restApiKey = restApiKey;
         this.clientSecret = clientSecret;
@@ -47,7 +47,7 @@ public class KakaoApiClient {
                 .build();
     }
 
-    public KakaoTokenResponse requestToken(String authorizationCode, String redirectUri) {
+    public KakaoTokenResponse requestToken(final String authorizationCode, final String redirectUri) {
         String body = "grant_type=authorization_code"
                 + "&client_id=" + restApiKey
                 + "&client_secret=" + clientSecret
@@ -64,7 +64,7 @@ public class KakaoApiClient {
         return sendRequest(request, KakaoTokenResponse.class);
     }
 
-    public KakaoUserResponse requestUserInfo(String accessToken) {
+    public KakaoUserResponse requestUserInfo(final String accessToken) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(userInfoUrl))
                 .header("Authorization", "Bearer " + accessToken)
@@ -76,7 +76,7 @@ public class KakaoApiClient {
         return sendRequest(request, KakaoUserResponse.class);
     }
 
-    public void unlinkUser(Long kakaoId) {
+    public void unlinkUser(final Long kakaoId) {
         String body = "target_id_type=user_id&target_id=" + kakaoId;
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -94,7 +94,7 @@ public class KakaoApiClient {
         }
     }
 
-    private <T> T sendRequest(HttpRequest request, Class<T> responseType) {
+    private <T> T sendRequest(final HttpRequest request, final Class<T> responseType) {
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {

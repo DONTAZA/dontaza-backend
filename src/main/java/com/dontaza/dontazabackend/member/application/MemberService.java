@@ -16,13 +16,13 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    public MemberResponse getMyInfo(Long memberId) {
+    public MemberResponse getMyInfo(final Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
         return MemberResponse.from(member);
     }
 
-    public PointResponse getMyPoints(Long memberId) {
+    public PointResponse getMyPoints(final Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
         return PointResponse.from(member);

@@ -14,18 +14,18 @@ public class CookieProvider {
     private final long refreshTokenExpiry;
 
     public CookieProvider(
-            @Value("${jwt.access-token-expiry}") long accessTokenExpiry,
-            @Value("${jwt.refresh-token-expiry}") long refreshTokenExpiry
+            final @Value("${jwt.access-token-expiry}") long accessTokenExpiry,
+            final @Value("${jwt.refresh-token-expiry}") long refreshTokenExpiry
     ) {
         this.accessTokenExpiry = accessTokenExpiry;
         this.refreshTokenExpiry = refreshTokenExpiry;
     }
 
-    public ResponseCookie createAccessTokenCookie(String token) {
+    public ResponseCookie createAccessTokenCookie(final String token) {
         return buildCookie(ACCESS_TOKEN_COOKIE, token, accessTokenExpiry / 1000, "/");
     }
 
-    public ResponseCookie createRefreshTokenCookie(String token) {
+    public ResponseCookie createRefreshTokenCookie(final String token) {
         return buildCookie(REFRESH_TOKEN_COOKIE, token, refreshTokenExpiry / 1000, "/api/auth");
     }
 
@@ -38,7 +38,7 @@ public class CookieProvider {
     }
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private ResponseCookie buildCookie(String name, String value, long maxAgeSeconds, String path) {
+    private ResponseCookie buildCookie(final String name, final String value, final long maxAgeSeconds, final String path) {
         return ResponseCookie.from(name, value)
                 .httpOnly(true)
                 .secure(true)

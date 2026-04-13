@@ -43,7 +43,7 @@ public class Riding extends BaseTimeEntity {
     private int durationSeconds;
     private int earnedPoints;
 
-    public static Riding rent(Long userId) {
+    public static Riding rent(final Long userId) {
         Riding riding = new Riding();
         riding.userId = userId;
         riding.status = RidingStatus.WAITING_VERIFICATION;
@@ -52,7 +52,7 @@ public class Riding extends BaseTimeEntity {
         return riding;
     }
 
-    public void returnBike(String returnStationId, int earnedPoints) {
+    public void returnBike(final String returnStationId, final int earnedPoints) {
         validateReturnable();
         this.returnStationId = returnStationId;
         this.returnedAt = LocalDateTime.now();

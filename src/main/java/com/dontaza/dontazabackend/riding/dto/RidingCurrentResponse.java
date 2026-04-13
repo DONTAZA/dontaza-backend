@@ -12,7 +12,7 @@ public record RidingCurrentResponse(
         LocalDateTime rentedAt
 ) {
 
-    public static RidingCurrentResponse from(Riding riding) {
+    public static RidingCurrentResponse from(final Riding riding) {
         return new RidingCurrentResponse(
                 true,
                 riding.getId(),

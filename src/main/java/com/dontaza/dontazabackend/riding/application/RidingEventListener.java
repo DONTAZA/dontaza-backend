@@ -18,7 +18,7 @@ public class RidingEventListener {
     private final RidingBaselineStationRepository baselineStationRepository;
 
     @EventListener
-    public void handleMemberWithdrawn(MemberWithdrawnEvent event) {
+    public void handleMemberWithdrawn(final MemberWithdrawnEvent event) {
         List<Riding> ridings = ridingRepository.findByUserId(event.memberId());
         baselineStationRepository.deleteByRidingIn(ridings);
         ridingRepository.deleteAll(ridings);

@@ -6,7 +6,7 @@ public record PointResponse(
         int totalPoints
 ) {
 
-    public static PointResponse from(Member member) {
+    public static PointResponse from(final Member member) {
         return new PointResponse(member.getTotalPoints());
     }
 }

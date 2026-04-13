@@ -32,7 +32,7 @@ public class AuthService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public LoginResult kakaoLogin(KakaoLoginRequest request) {
+    public LoginResult kakaoLogin(final KakaoLoginRequest request) {
         KakaoTokenResponse kakaoToken = kakaoApiClient.requestToken(
                 request.authorizationCode(), request.redirectUri());
         KakaoUserResponse kakaoUser = kakaoApiClient.requestUserInfo(kakaoToken.accessToken());
@@ -47,7 +47,7 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenResult refreshToken(String refreshTokenValue) {
+    public TokenResult refreshToken(final String refreshTokenValue) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
                 .orElseThrow(InvalidRefreshTokenException::new);
 
@@ -65,19 +65,19 @@ public class AuthService {
     }
 
     @Transactional
-    public void agreeToTerms(Long memberId) {
+    public void agreeToTerms(final Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
         member.agreeToTerms();
     }
 
     @Transactional
-    public void logout(Long memberId) {
+    public void logout(final Long memberId) {
         refreshTokenRepository.deleteByMemberId(memberId);
     }
 
     @Transactional
-    public void withdraw(Long memberId) {
+    public void withdraw(final Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
 
@@ -86,18 +86,18 @@ public class AuthService {
     }
 
     @Transactional
-    public void withdrawByKakaoId(Long kakaoId) {
+    public void withdrawByKakaoId(final Long kakaoId) {
         memberRepository.findByKakaoId(kakaoId)
                 .ifPresent(this::deleteMemberData);
     }
 
-    private void deleteMemberData(Member member) {
+    private void deleteMemberData(final Member member) {
         eventPublisher.publishEvent(new MemberWithdrawnEvent(member.getId()));
         refreshTokenRepository.deleteByMemberId(member.getId());
         memberRepository.delete(member);
     }
 
-    private Member findOrCreateMember(KakaoUserResponse kakaoUser) {
+    private Member findOrCreateMember(final KakaoUserResponse kakaoUser) {
         return memberRepository.findByKakaoId(kakaoUser.id())
                 .map(member -> {
                     member.updateProfile(kakaoUser.getNickname(), kakaoUser.getProfileImageUrl());
@@ -108,7 +108,7 @@ public class AuthService {
                 ));
     }
 
-    private String createAndSaveRefreshToken(Long memberId) {
+    private String createAndSaveRefreshToken(final Long memberId) {
         String token = jwtProvider.createRefreshToken(memberId);
         LocalDateTime expiresAt = LocalDateTime.now()
                 .plusSeconds(jwtProvider.getRefreshTokenExpiry() / 1000);

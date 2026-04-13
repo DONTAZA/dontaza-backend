@@ -40,7 +40,7 @@ public class Member extends BaseTimeEntity {
 
     private boolean termsAgreed;
 
-    public Member(Long kakaoId, String name, String profileImageUrl) {
+    public Member(final Long kakaoId, final String name, final String profileImageUrl) {
         this.kakaoId = kakaoId;
         this.name = name;
         this.nickname = NicknameGenerator.generate();
@@ -58,12 +58,12 @@ public class Member extends BaseTimeEntity {
         this.termsAgreed = true;
     }
 
-    public void updateProfile(String name, String profileImageUrl) {
+    public void updateProfile(final String name, final String profileImageUrl) {
         this.name = name;
         this.profileImageUrl = profileImageUrl;
     }
 
-    public void addPoints(int points) {
+    public void addPoints(final int points) {
         this.totalPoints += points;
     }
 }

@@ -32,7 +32,7 @@ public class Station extends BaseTimeEntity {
 
     private int availableBikes;
 
-    public Station(String id, String name, double lat, double lng, int availableBikes) {
+    public Station(final String id, final String name, final double lat, final double lng, final int availableBikes) {
         this.id = id;
         this.name = name;
         this.lat = lat;
@@ -40,14 +40,14 @@ public class Station extends BaseTimeEntity {
         this.availableBikes = availableBikes;
     }
 
-    public void updateFrom(Station source) {
+    public void updateFrom(final Station source) {
         this.name = source.name;
         this.lat = source.lat;
         this.lng = source.lng;
         this.availableBikes = source.availableBikes;
     }
 
-    public int distanceMetersTo(GeoPoint target) {
+    public int distanceMetersTo(final GeoPoint target) {
         double dLat = Math.toRadians(target.lat() - this.lat);
         double dLng = Math.toRadians(target.lng() - this.lng);
         double a = haversine(dLat)
@@ -55,11 +55,11 @@ public class Station extends BaseTimeEntity {
         return (int) (EARTH_RADIUS_METERS * 2 * Math.asin(Math.sqrt(a)));
     }
 
-    public boolean isWithinRadius(GeoPoint center, int radiusMeters) {
+    public boolean isWithinRadius(final GeoPoint center, final int radiusMeters) {
         return distanceMetersTo(center) <= radiusMeters;
     }
 
-    private double haversine(double value) {
+    private double haversine(final double value) {
         return Math.pow(Math.sin(value / 2), 2);
     }
 }

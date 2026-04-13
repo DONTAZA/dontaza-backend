@@ -19,28 +19,28 @@ public class JwtProvider {
     private final long refreshTokenExpiry;
 
     public JwtProvider(
-            @Value("${jwt.secret-key}") String secretKey,
-            @Value("${jwt.access-token-expiry}") long accessTokenExpiry,
-            @Value("${jwt.refresh-token-expiry}") long refreshTokenExpiry
+            final @Value("${jwt.secret-key}") String secretKey,
+            final @Value("${jwt.access-token-expiry}") long accessTokenExpiry,
+            final @Value("${jwt.refresh-token-expiry}") long refreshTokenExpiry
     ) {
         this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         this.accessTokenExpiry = accessTokenExpiry;
         this.refreshTokenExpiry = refreshTokenExpiry;
     }
 
-    public String createAccessToken(Long memberId) {
+    public String createAccessToken(final Long memberId) {
         return createToken(memberId, accessTokenExpiry);
     }
 
-    public String createRefreshToken(Long memberId) {
+    public String createRefreshToken(final Long memberId) {
         return createToken(memberId, refreshTokenExpiry);
     }
 
-    public Long getMemberId(String token) {
+    public Long getMemberId(final String token) {
         return parseClaims(token).get("memberId", Long.class);
     }
 
-    public boolean isValid(String token) {
+    public boolean isValid(final String token) {
         try {
             parseClaims(token);
             return true;
@@ -53,7 +53,7 @@ public class JwtProvider {
         return refreshTokenExpiry;
     }
 
-    private String createToken(Long memberId, long expiry) {
+    private String createToken(final Long memberId, final long expiry) {
         Date now = new Date();
         return Jwts.builder()
                 .claim("memberId", memberId)
@@ -63,7 +63,7 @@ public class JwtProvider {
                 .compact();
     }
 
-    private Claims parseClaims(String token) {
+    private Claims parseClaims(final String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
                 .build()

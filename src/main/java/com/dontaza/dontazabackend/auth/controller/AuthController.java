@@ -31,8 +31,8 @@ public class AuthController implements AuthApi {
     private final CookieProvider cookieProvider;
 
     @Override
-    public SuccessResponse<LoginResponse> kakaoLogin(KakaoLoginRequest request,
-                                                      HttpServletResponse response) {
+    public SuccessResponse<LoginResponse> kakaoLogin(final KakaoLoginRequest request,
+                                                      final HttpServletResponse response) {
         LoginResult result = authService.kakaoLogin(request);
         addTokenCookies(response, result.accessToken(), result.refreshToken());
         return SuccessResponse.success(HttpStatus.OK,
@@ -40,8 +40,8 @@ public class AuthController implements AuthApi {
     }
 
     @Override
-    public SuccessResponse<Void> refreshToken(HttpServletRequest request,
-                                               HttpServletResponse response) {
+    public SuccessResponse<Void> refreshToken(final HttpServletRequest request,
+                                               final HttpServletResponse response) {
         String refreshToken = extractRefreshTokenFromCookie(request);
         try {
             TokenResult result = authService.refreshToken(refreshToken);
@@ -55,7 +55,7 @@ public class AuthController implements AuthApi {
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public SuccessResponse<Void> logout(HttpServletResponse response) {
+    public SuccessResponse<Void> logout(final HttpServletResponse response) {
         Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         authService.logout(memberId);
         deleteTokenCookies(response);
@@ -71,28 +71,28 @@ public class AuthController implements AuthApi {
 
     @Override
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public SuccessResponse<Void> withdraw(HttpServletResponse response) {
+    public SuccessResponse<Void> withdraw(final HttpServletResponse response) {
         Long memberId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         authService.withdraw(memberId);
         deleteTokenCookies(response);
         return SuccessResponse.success(HttpStatus.NO_CONTENT);
     }
 
-    private void addTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
+    private void addTokenCookies(final HttpServletResponse response, final String accessToken, final String refreshToken) {
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieProvider.createAccessTokenCookie(accessToken).toString());
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieProvider.createRefreshTokenCookie(refreshToken).toString());
     }
 
-    private void deleteTokenCookies(HttpServletResponse response) {
+    private void deleteTokenCookies(final HttpServletResponse response) {
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieProvider.deleteAccessTokenCookie().toString());
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieProvider.deleteRefreshTokenCookie().toString());
     }
 
-    private String extractRefreshTokenFromCookie(HttpServletRequest request) {
+    private String extractRefreshTokenFromCookie(final HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
