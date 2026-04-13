@@ -64,6 +64,11 @@ Trunk-Based Development (TBD)
 기능 구현이 완료되면 빌드(`./gradlew build`)를 실행하고, 통과 시 변경 목적별로 잘게 쪼개서 자동으로 커밋한다.
 서브모듈(dontaza-env, dontaza-wiki) 변경이 있으면 서브모듈을 먼저 커밋/푸시한 뒤 메인 레포를 커밋한다.
 
+## 자동 테스트 규칙
+
+Service 계층 기능을 구현하거나 수정하면 반드시 통합 테스트(`@SpringBootTest`)를 함께 작성/수정한다.
+커밋 전 `./gradlew test`를 실행하여 모든 테스트가 통과하는지 확인한다.
+
 ## Code Rules
 
 Checkstyle(`config/checkstyle/checkstyle.xml`)이 아래 규칙을 자동 검사한다.
@@ -77,6 +82,18 @@ Claude Code 훅(`.claude/settings.json`)이 Java 파일 수정 시 Checkstyle을
 - 메서드 네이밍: 동사로 시작, 의도를 명확히 드러낸다
   - 좋은 예: `calculatePointsForDistance`, `verifyBikeRental`
   - 나쁜 예: `process`, `handle`, `doWork`
+
+### RESTful API
+- HTTP 메서드는 의미에 맞게 사용한다
+  - `GET`: 조회 (멱등)
+  - `POST`: 생성
+  - `PATCH`: 부분 수정, 상태 변경
+  - `PUT`: 전체 교체
+  - `DELETE`: 리소스 삭제
+- URI는 리소스(명사)로 표현한다, 동사를 쓰지 않는다
+  - 좋은 예: `PATCH /api/riding/cancel`, `POST /api/riding/rent`
+  - 나쁜 예: `GET /api/getRiding`, `POST /api/doReturn`
+- 상태 변경은 PATCH, 리소스 삭제만 DELETE를 사용한다
 
 ### OOP
 - 객체에게 메시지를 보내라, getter로 꺼내서 외부에서 판단하지 마라
