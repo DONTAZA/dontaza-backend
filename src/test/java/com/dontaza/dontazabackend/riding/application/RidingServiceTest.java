@@ -6,6 +6,7 @@ import com.dontaza.dontazabackend.global.exception.BusinessViolationException.To
 import com.dontaza.dontazabackend.global.exception.ResourceException.RidingNotFoundException;
 import com.dontaza.dontazabackend.member.domain.Member;
 import com.dontaza.dontazabackend.member.domain.MemberRepository;
+import com.dontaza.dontazabackend.member.domain.Role;
 import com.dontaza.dontazabackend.riding.domain.Riding;
 import com.dontaza.dontazabackend.riding.domain.RidingBaselineStation;
 import com.dontaza.dontazabackend.riding.domain.RidingBaselineStationRepository;
@@ -131,6 +132,29 @@ class RidingServiceTest {
     }
 
     @Test
+    void ADMIN은_당일_완료된_라이딩이_있어도_대여할_수_있다() throws Exception {
+        // given
+        stationRepository.save(new Station("ST-001", "강남역 1번출구", 37.4979, 127.0276, 10));
+        Member admin = memberRepository.save(new Member(99999L, "관리자", "https://img.kakao.com/admin.jpg"));
+        setRole(admin, Role.ADMIN);
+        memberRepository.save(admin);
+
+        Riding completed = Riding.rent(admin.getId());
+        setRentedAt(completed, LocalDateTime.now().minusMinutes(10));
+        completed.verify();
+        completed.returnBike("ST-001", 100);
+        ridingRepository.save(completed);
+
+        RentRequest request = new RentRequest(37.4979, 127.0276);
+
+        // when
+        RentResponse response = ridingService.rent(admin.getId(), request);
+
+        // then
+        assertThat(response.ridingId()).isNotNull();
+    }
+
+    @Test
     void 자전거_수가_감소하면_인증에_성공한다() {
         // given
         Station station = stationRepository.save(
@@ -243,5 +267,11 @@ class RidingServiceTest {
         Field field = Riding.class.getDeclaredField("rentedAt");
         field.setAccessible(true);
         field.set(riding, time);
+    }
+
+    private void setRole(Member member, Role role) throws Exception {
+        Field field = Member.class.getDeclaredField("role");
+        field.setAccessible(true);
+        field.set(member, role);
     }
 }

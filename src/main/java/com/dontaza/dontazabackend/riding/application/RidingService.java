@@ -46,7 +46,10 @@ public class RidingService {
     @Transactional
     public RentResponse rent(Long userId, RentRequest request) {
         validateNotAlreadyRiding(userId);
-        validateDailyLimit(userId);
+        Member member = findMember(userId);
+        if (!member.isAdmin()) {
+            validateDailyLimit(userId);
+        }
 
         List<Station> nearbyStations = stationService.findNearbyStations(request.lat(), request.lng());
         if (nearbyStations.isEmpty()) {
@@ -87,9 +90,7 @@ public class RidingService {
         riding.returnBike(returnStation.getId(), points);
 
         if (points > 0) {
-            Member member = memberRepository.findById(userId)
-                    .orElseThrow(MemberNotFoundException::new);
-            member.addPoints(points);
+            findMember(userId).addPoints(points);
         }
 
         return ReturnResponse.from(riding);
@@ -113,6 +114,11 @@ public class RidingService {
     private Riding findActiveRiding(Long userId) {
         return ridingRepository.findFirstByUserIdAndStatusInOrderByRentedAtDesc(userId, ACTIVE_STATUSES)
                 .orElseThrow(RidingNotFoundException::new);
+    }
+
+    private Member findMember(Long userId) {
+        return memberRepository.findById(userId)
+                .orElseThrow(MemberNotFoundException::new);
     }
 
     private void validateNotAlreadyRiding(Long userId) {
