@@ -11,6 +11,7 @@ import com.dontaza.dontazabackend.riding.domain.RidingBaselineStation;
 import com.dontaza.dontazabackend.riding.domain.RidingBaselineStationRepository;
 import com.dontaza.dontazabackend.riding.domain.RidingRepository;
 import com.dontaza.dontazabackend.riding.domain.RidingStatus;
+import com.dontaza.dontazabackend.riding.dto.CancelResponse;
 import com.dontaza.dontazabackend.riding.dto.RentRequest;
 import com.dontaza.dontazabackend.riding.dto.RentResponse;
 import com.dontaza.dontazabackend.riding.dto.RidingCurrentResponse;
@@ -175,9 +176,10 @@ class RidingServiceTest {
         RentResponse rentResponse = ridingService.rent(memberId, new RentRequest(37.4979, 127.0276));
 
         // when
-        ridingService.cancelRiding(memberId);
+        CancelResponse response = ridingService.cancelRiding(memberId);
 
         // then
+        assertThat(response.cancelledRidingIds()).containsExactly(rentResponse.ridingId());
         Riding cancelled = ridingRepository.findById(rentResponse.ridingId()).orElseThrow();
         assertThat(cancelled.getStatus()).isEqualTo(RidingStatus.CANCELLED);
     }
@@ -189,9 +191,10 @@ class RidingServiceTest {
         Riding riding2 = ridingRepository.save(Riding.rent(memberId));
 
         // when
-        ridingService.cancelRiding(memberId);
+        CancelResponse response = ridingService.cancelRiding(memberId);
 
         // then
+        assertThat(response.cancelledRidingIds()).containsExactlyInAnyOrder(riding1.getId(), riding2.getId());
         assertThat(ridingRepository.findById(riding1.getId()).orElseThrow().getStatus())
                 .isEqualTo(RidingStatus.CANCELLED);
         assertThat(ridingRepository.findById(riding2.getId()).orElseThrow().getStatus())
@@ -199,11 +202,14 @@ class RidingServiceTest {
     }
 
     @Test
-    void 활성_라이딩이_없어도_취소_시_예외_없이_정상_처리된다() {
+    void 활성_라이딩이_없어도_취소_시_빈_목록을_반환한다() {
         // given — 라이딩 없음
 
-        // when & then — 예외 없이 정상 종료
-        ridingService.cancelRiding(memberId);
+        // when
+        CancelResponse response = ridingService.cancelRiding(memberId);
+
+        // then
+        assertThat(response.cancelledRidingIds()).isEmpty();
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.dontaza.dontazabackend.riding.api;
 
 import com.dontaza.dontazabackend.global.response.SuccessResponse;
+import com.dontaza.dontazabackend.riding.dto.CancelResponse;
 import com.dontaza.dontazabackend.riding.dto.RentRequest;
 import com.dontaza.dontazabackend.riding.dto.RentResponse;
 import com.dontaza.dontazabackend.riding.dto.ReturnRequest;
@@ -27,5 +28,5 @@ public interface RidingApi {
     SuccessResponse<ReturnResponse> returnBike(@RequestBody ReturnRequest request);
 
     @PatchMapping("/cancel")
-    SuccessResponse<Void> cancelRiding();
+    SuccessResponse<CancelResponse> cancelRiding();
 }

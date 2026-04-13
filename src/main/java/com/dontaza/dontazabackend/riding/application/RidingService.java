@@ -12,6 +12,7 @@ import com.dontaza.dontazabackend.riding.domain.RidingBaselineStation;
 import com.dontaza.dontazabackend.riding.domain.RidingBaselineStationRepository;
 import com.dontaza.dontazabackend.riding.domain.RidingRepository;
 import com.dontaza.dontazabackend.riding.domain.RidingStatus;
+import com.dontaza.dontazabackend.riding.dto.CancelResponse;
 import com.dontaza.dontazabackend.riding.dto.RentRequest;
 import com.dontaza.dontazabackend.riding.dto.RentResponse;
 import com.dontaza.dontazabackend.riding.dto.ReturnRequest;
@@ -95,9 +96,11 @@ public class RidingService {
     }
 
     @Transactional
-    public void cancelRiding(Long userId) {
-        ridingRepository.findByUserIdAndStatusIn(userId, ACTIVE_STATUSES)
-                .forEach(Riding::cancel);
+    public CancelResponse cancelRiding(Long userId) {
+        List<Riding> activeRidings = ridingRepository.findByUserIdAndStatusIn(userId, ACTIVE_STATUSES);
+        activeRidings.forEach(Riding::cancel);
+        List<Long> ids = activeRidings.stream().map(Riding::getId).toList();
+        return new CancelResponse(ids);
     }
 
     @Transactional(readOnly = true)

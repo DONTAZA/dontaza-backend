@@ -3,6 +3,7 @@ package com.dontaza.dontazabackend.riding.controller;
 import com.dontaza.dontazabackend.global.response.SuccessResponse;
 import com.dontaza.dontazabackend.riding.api.RidingApi;
 import com.dontaza.dontazabackend.riding.application.RidingService;
+import com.dontaza.dontazabackend.riding.dto.CancelResponse;
 import com.dontaza.dontazabackend.riding.dto.RentRequest;
 import com.dontaza.dontazabackend.riding.dto.RentResponse;
 import com.dontaza.dontazabackend.riding.dto.ReturnRequest;
@@ -43,9 +44,8 @@ public class RidingController implements RidingApi {
     }
 
     @Override
-    public SuccessResponse<Void> cancelRiding() {
-        ridingService.cancelRiding(getCurrentMemberId());
-        return SuccessResponse.success(HttpStatus.NO_CONTENT);
+    public SuccessResponse<CancelResponse> cancelRiding() {
+        return SuccessResponse.success(HttpStatus.OK, ridingService.cancelRiding(getCurrentMemberId()));
     }
 
     private Long getCurrentMemberId() {
