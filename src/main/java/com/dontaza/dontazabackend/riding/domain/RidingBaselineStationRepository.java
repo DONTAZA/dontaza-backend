@@ -9,4 +9,6 @@ public interface RidingBaselineStationRepository extends JpaRepository<RidingBas
     List<RidingBaselineStation> findByRidingId(Long ridingId);
 
     void deleteByRidingIn(List<Riding> ridings);
+
+    void deleteByRidingId(Long ridingId);
 }

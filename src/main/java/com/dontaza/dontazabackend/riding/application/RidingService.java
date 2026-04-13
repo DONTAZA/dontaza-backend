@@ -105,7 +105,12 @@ public class RidingService {
     public void resetDailyLimit(final Long userId) {
         List<Riding> todayCompleted = ridingRepository.findByUserIdAndStatusAndRentedAtAfter(
                 userId, RidingStatus.COMPLETED, LocalDate.now().atStartOfDay());
-        ridingRepository.deleteAll(todayCompleted);
+        deleteRidingsWithBaselines(todayCompleted);
+    }
+
+    private void deleteRidingsWithBaselines(final List<Riding> ridings) {
+        ridings.forEach(r -> baselineStationRepository.deleteByRidingId(r.getId()));
+        ridingRepository.deleteAll(ridings);
     }
 
     @Transactional(readOnly = true)
