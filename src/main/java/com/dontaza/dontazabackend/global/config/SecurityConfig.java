@@ -50,6 +50,7 @@ public class SecurityConfig {
         auth
                 .requestMatchers("/api/auth/kakao", "/api/auth/token/refresh", "/api/auth/kakao/unlink").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated();
     }
 

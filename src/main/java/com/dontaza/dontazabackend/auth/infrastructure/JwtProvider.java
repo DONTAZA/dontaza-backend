@@ -28,16 +28,20 @@ public class JwtProvider {
         this.refreshTokenExpiry = refreshTokenExpiry;
     }
 
-    public String createAccessToken(final Long memberId) {
-        return createToken(memberId, accessTokenExpiry);
+    public String createAccessToken(final Long memberId, final String role) {
+        return createToken(memberId, role, accessTokenExpiry);
     }
 
     public String createRefreshToken(final Long memberId) {
-        return createToken(memberId, refreshTokenExpiry);
+        return createToken(memberId, null, refreshTokenExpiry);
     }
 
     public Long getMemberId(final String token) {
         return parseClaims(token).get("memberId", Long.class);
+    }
+
+    public String getRole(final String token) {
+        return parseClaims(token).get("role", String.class);
     }
 
     public boolean isValid(final String token) {
@@ -53,14 +57,17 @@ public class JwtProvider {
         return refreshTokenExpiry;
     }
 
-    private String createToken(final Long memberId, final long expiry) {
+    private String createToken(final Long memberId, final String role, final long expiry) {
         Date now = new Date();
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .claim("memberId", memberId)
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + expiry))
-                .signWith(secretKey)
-                .compact();
+                .signWith(secretKey);
+        if (role != null) {
+            builder.claim("role", role);
+        }
+        return builder.compact();
     }
 
     private Claims parseClaims(final String token) {

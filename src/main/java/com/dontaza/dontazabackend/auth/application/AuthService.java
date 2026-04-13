@@ -40,7 +40,7 @@ public class AuthService {
         Member member = findOrCreateMember(kakaoUser);
         boolean isNewUser = !member.isTermsAgreed();
 
-        String accessToken = jwtProvider.createAccessToken(member.getId());
+        String accessToken = jwtProvider.createAccessToken(member.getId(), member.getRole().name());
         String refreshToken = createAndSaveRefreshToken(member.getId());
 
         return new LoginResult(accessToken, refreshToken, isNewUser, member);
@@ -58,8 +58,10 @@ public class AuthService {
 
         refreshTokenRepository.delete(refreshToken);
 
-        String newAccessToken = jwtProvider.createAccessToken(refreshToken.getMemberId());
-        String newRefreshToken = createAndSaveRefreshToken(refreshToken.getMemberId());
+        Member member = memberRepository.findById(refreshToken.getMemberId())
+                .orElseThrow(MemberNotFoundException::new);
+        String newAccessToken = jwtProvider.createAccessToken(member.getId(), member.getRole().name());
+        String newRefreshToken = createAndSaveRefreshToken(member.getId());
 
         return new TokenResult(newAccessToken, newRefreshToken);
     }
